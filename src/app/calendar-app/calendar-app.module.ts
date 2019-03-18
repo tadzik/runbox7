@@ -28,10 +28,16 @@ import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 
 import { CalendarAppComponent } from './calendar-app.component';
+import { EventEditorDialog } from './event-editor-dialog.component';
+import { FormsModule } from '@angular/forms';
 
 import {
   MatButtonModule,
+  MatDatepickerModule,
+  MatDialogModule,
+  MatFormFieldModule,
   MatIconModule,
+  MatInputModule,
   MatListModule,
   MatSidenavModule,
   MatToolbarModule,
@@ -39,23 +45,32 @@ import {
 
 @NgModule({
   declarations: [
-    CalendarAppComponent
+    CalendarAppComponent,
+    EventEditorDialog
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    FormsModule,
     MenuModule,
     MatButtonModule,
+	MatDatepickerModule,
+    MatDialogModule,
+    MatFormFieldModule,
     MatIconModule,
+	MatInputModule,
     MatListModule,
     MatSidenavModule,
     MatToolbarModule,
-    // calendar stuff
+    // angular-calendar stuff
     CommonModule,
     CalendarModule.forRoot({
       provide: DateAdapter,
       useFactory: adapterFactory
     })
+  ],
+  entryComponents: [
+    EventEditorDialog
   ],
   providers: [
   ],

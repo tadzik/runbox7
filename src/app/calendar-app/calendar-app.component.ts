@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2019 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -24,25 +24,26 @@ import {
     TemplateRef
 } from '@angular/core';
 
+import { MatDialog } from '@angular/material';
+
 import {
-    startOfDay,
-    endOfDay,
-    subDays,
-    addDays,
-    endOfMonth,
     isSameDay,
     isSameMonth,
-    addHours
 } from 'date-fns';
 
 import { Subject } from 'rxjs';
 
 import {
     CalendarEvent,
-    CalendarEventAction,
     CalendarEventTimesChangedEvent,
+    CalendarEventTitleFormatter,
     CalendarView
 } from 'angular-calendar';
+
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RunboxCalendarEvent } from './runbox-calendar-event';
+import { EventEditorDialog } from './event-editor-dialog.component';
+import { EventTitleFormatter } from './event-title-formatter';
 
 const colors: any = {
     red: {
@@ -62,7 +63,10 @@ const colors: any = {
 @Component({
     selector: 'calendar-app-component',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    templateUrl: './calendar-app.component.html'
+    templateUrl: './calendar-app.component.html',
+    providers: [
+        { provide: CalendarEventTitleFormatter, useClass: EventTitleFormatter }
+    ]
 })
 export class CalendarAppComponent {
     view: CalendarView = CalendarView.Month;
@@ -72,45 +76,21 @@ export class CalendarAppComponent {
 
     refresh: Subject<any> = new Subject();
 
-    events: CalendarEvent[] = [
-      {
-        start: subDays(startOfDay(new Date()), 1),
-        end: addDays(new Date(), 1),
-        title: 'A 3 day event',
-        color: colors.red,
-        allDay: true,
-        resizable: {
-          beforeStart: true,
-          afterEnd: true
-        },
-        draggable: true
-      },
-      {
-        start: startOfDay(new Date()),
-        title: 'An event with no end date',
-        color: colors.yellow,
-      },
-      {
-        start: subDays(endOfMonth(new Date()), 3),
-        end: addDays(endOfMonth(new Date()), 3),
-        title: 'A long event that spans 2 months',
-        color: colors.blue,
-        allDay: true
-      },
-      {
-        start: addHours(startOfDay(new Date()), 2),
-        end: new Date(),
-        title: 'A draggable and resizable event',
-        color: colors.yellow,
-        resizable: {
-          beforeStart: true,
-          afterEnd: true
-        },
-        draggable: true
-      }
-    ];
+    events: CalendarEvent[] = [];
 
-    constructor() {}
+    constructor(
+        private dialog: MatDialog,
+        private rmmapi: RunboxWebmailAPI
+    ) {
+        this.rmmapi.getCalendarEvents().subscribe(events => {
+            console.log('Calendar events:', events);
+            this.events = [];
+            for (var e of events) {
+                this.events.push(new RunboxCalendarEvent(e));
+            }
+            this.refresh.next();
+        });
+    }
 
     dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
         if (isSameMonth(date, this.viewDate)) {
@@ -132,20 +112,22 @@ export class CalendarAppComponent {
 
     openEvent(event: CalendarEvent): void {
         console.log("Opening event", event);
+        const dialogRef = this.dialog.open(EventEditorDialog, { 'data': event });
+        dialogRef.afterClosed().subscribe(result => {
+            console.log("NYI");
+        });
     }
 
     addEvent(): void {
-        this.events.push({
-            title: 'New event',
-            start: startOfDay(new Date()),
-            end: endOfDay(new Date()),
-            color: colors.red,
-            draggable: true,
-            resizable: {
-                beforeStart: true,
-                afterEnd: true
-            }
+        const dialogRef = this.dialog.open(EventEditorDialog, {});
+        dialogRef.afterClosed().subscribe(result => {
+            console.log("Dialog result:", result);
+			if (result) {
+				this.rmmapi.addCalendarEvent(result).subscribe(
+					res => console.log("NYI")
+				);
+			}
+            this.refresh.next();
         });
-        this.refresh.next();
     }
 }

@@ -23,6 +23,7 @@ import { Observable ,  of, from ,  Subject ,  AsyncSubject } from 'rxjs';
 import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
 
 import { Contact } from '../contacts-app/contact';
+import { RunboxCalendarEvent } from '../calendar-app/runbox-calendar-event';
 import { DraftFormModel } from '../compose/draftdesk.service';
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { catchError, map, mergeMap, tap, bufferCount } from 'rxjs/operators';
@@ -510,5 +511,17 @@ export class RunboxWebmailAPI {
     public modifyContact(c: Contact): Observable<Contact> {
         return this.http.post('/rest/v1/addresses_contact/' + c.id, c).pipe(
             map((res: HttpResponse<any>) => new Contact(res['contact'])));
+    }
+
+    public getCalendarEvents(): Observable<any> {
+        return this.http.get('/rest/v1/calendar/events').pipe(
+            map((res: HttpResponse<any>) => res)
+        );
+    }
+
+    public addCalendarEvent(e: RunboxCalendarEvent): Observable<any> {
+        return this.http.put('/rest/v1/calendar/events', e).pipe(
+            map((res: HttpResponse<any>) => res)
+        );
     }
 }
