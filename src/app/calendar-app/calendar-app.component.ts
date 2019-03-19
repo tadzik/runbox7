@@ -114,6 +114,16 @@ export class CalendarAppComponent {
         console.log("Opening event", event);
         const dialogRef = this.dialog.open(EventEditorDialog, { 'data': event });
         dialogRef.afterClosed().subscribe(result => {
+            if (result === 'DELETE') {
+                this.rmmapi.deleteCalendarEvent(event.id).subscribe(
+                    res => {
+                        console.log("Event deleted:", res);
+                        const idx = this.events.findIndex(e => e.id === event.id);
+                        this.events.splice(idx, 1);
+                        this.refresh.next();
+                    }
+                );
+            }
             console.log("NYI");
         });
     }
