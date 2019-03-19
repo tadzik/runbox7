@@ -131,14 +131,16 @@ export class CalendarAppComponent {
 
     addEvent(): void {
         const dialogRef = this.dialog.open(EventEditorDialog, {});
-        dialogRef.afterClosed().subscribe(result => {
-            console.log("Dialog result:", result);
-			if (result) {
-				this.rmmapi.addCalendarEvent(result).subscribe(
-					res => console.log("NYI")
-				);
+        dialogRef.afterClosed().subscribe(event => {
+            console.log("Dialog result:", event);
+			if (event) {
+				this.rmmapi.addCalendarEvent(event).subscribe(res => {
+					console.log("Event created:", res);
+                    event.id = res.id;
+                    this.events.push(event);
+                    this.refresh.next();
+                });
 			}
-            this.refresh.next();
         });
     }
 }
