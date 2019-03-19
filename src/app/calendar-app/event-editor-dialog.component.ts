@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { RunboxCalendarEvent } from './runbox-calendar-event';
+import { EventDeleteConfirmationDialog } from './event-delete-confirmation-dialog.component';
 
 @Component({
 	selector: 'event-editor-dialog',
@@ -14,15 +15,26 @@ export class EventEditorDialog {
     });
 
 	constructor(
+        private dialog: MatDialog,
 		public dialogRef: MatDialogRef<EventEditorDialog>,
 		@Inject(MAT_DIALOG_DATA) public data: RunboxCalendarEvent
 	) {
 		if (data) {
+            console.log("Opening event:", data);
 			this.event = data;
 		}
 	}
 
-	onNoClick(): void {
+    onDeleteClick(): void {
+        const confirmRef = this.dialog.open(EventDeleteConfirmationDialog, {});
+        confirmRef.afterClosed().subscribe(result => {
+            if (result) {
+                this.dialogRef.close('DELETE');
+            }
+        });
+    }
+
+	onCancelClick(): void {
 		this.dialogRef.close();
 	}
 }

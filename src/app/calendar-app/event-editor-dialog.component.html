@@ -9,7 +9,18 @@
         <mat-datepicker #startPicker></mat-datepicker>
 	</p>
 </div>
-<div mat-dialog-actions>
-    <button mat-button (click)="onNoClick()">Cancel</button>
-    <button mat-button color="primary" [mat-dialog-close]="event" cdkFocusInitial>Create</button>
+<div mat-dialog-actions style="justify-content: flex-end;">
+    <button *ngIf="event.id"
+            mat-raised-button color="warn"
+            (click)="onDeleteClick()">Delete this event</button>
+
+    <button mat-button
+            (click)="onCancelClick()">Cancel</button>
+
+    <button mat-raised-button color="primary"
+            [mat-dialog-close]="event" cdkFocusInitial>
+        <span *ngIf="event.id">  Update </span>
+        <span *ngIf="!event.id"> Create </span>
+    </button>
+
 </div>

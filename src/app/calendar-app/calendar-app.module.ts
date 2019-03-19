@@ -28,6 +28,7 @@ import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 
 import { CalendarAppComponent } from './calendar-app.component';
+import { EventDeleteConfirmationDialog } from './event-delete-confirmation-dialog.component';
 import { EventEditorDialog } from './event-editor-dialog.component';
 import { FormsModule } from '@angular/forms';
 
@@ -46,6 +47,7 @@ import {
 @NgModule({
   declarations: [
     CalendarAppComponent,
+    EventDeleteConfirmationDialog,
     EventEditorDialog
   ],
   imports: [
@@ -70,6 +72,7 @@ import {
     })
   ],
   entryComponents: [
+    EventDeleteConfirmationDialog,
     EventEditorDialog
   ],
   providers: [
