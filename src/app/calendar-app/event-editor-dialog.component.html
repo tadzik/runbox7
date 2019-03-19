@@ -3,10 +3,10 @@
 	<p>
 		<input matInput type="text" placeholder="Title" [(ngModel)]="event.title">
 	</p><p>
-		Start:
-		<input matInput [matDatepicker]="startPicker" [(ngModel)]="event.start">
-		<mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-        <mat-datepicker #startPicker></mat-datepicker>
+		<label>Start:</label>
+		<input [(ngModel)]="event.start"
+               [owlDateTimeTrigger]="start_dt" [owlDateTime]="start_dt">
+        <owl-date-time #start_dt></owl-date-time>
 	</p>
 </div>
 <div mat-dialog-actions style="justify-content: flex-end;">

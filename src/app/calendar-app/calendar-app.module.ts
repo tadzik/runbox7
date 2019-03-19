@@ -30,6 +30,7 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { CalendarAppComponent } from './calendar-app.component';
 import { EventDeleteConfirmationDialog } from './event-delete-confirmation-dialog.component';
 import { EventEditorDialog } from './event-editor-dialog.component';
+import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
 import { FormsModule } from '@angular/forms';
 
 import {
@@ -64,6 +65,8 @@ import {
     MatListModule,
     MatSidenavModule,
     MatToolbarModule,
+    OwlDateTimeModule,
+    OwlNativeDateTimeModule,
     // angular-calendar stuff
     CommonModule,
     CalendarModule.forRoot({

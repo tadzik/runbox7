@@ -123,8 +123,9 @@ export class CalendarAppComponent {
                         this.refresh.next();
                     }
                 );
+            } else if (result) {
+                console.log("Updating event:", result);
             }
-            console.log("NYI");
         });
     }
 
