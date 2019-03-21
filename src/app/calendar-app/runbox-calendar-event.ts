@@ -26,12 +26,12 @@ import {
 } from 'date-fns';
 
 export class RunboxCalendarEvent implements CalendarEvent {
-	id?: 	   string | number;
+    id?:       string | number;
     start:     Date;
     end?:      Date;
     title:     string;
     allDay?:   boolean;
-	calendar:  string = 'rmm7-testing';
+    calendar:  string = 'rmm7-testing';
 
     constructor(event: any) {
         this.id     = event.id;
@@ -39,24 +39,24 @@ export class RunboxCalendarEvent implements CalendarEvent {
         this.allDay = event.isAllDay;
         this.title  = event.title;
 
-		if (event.duration) {
-			// https://tools.ietf.org/html/rfc2445#section-4.3.6
-			const durationRE = /^([\+\-]?)PT?(\d+)([WHMSD])$/;
-			const parts = durationRE.exec(event.duration);
-			switch (parts[3]) {
-				case 'D':
-					this.end = addDays(this.start, Number(parts[2]));
-					break;
-				case 'H':
-					this.end = addHours(this.start, Number(parts[2]));
-					break;
-				case 'S':
-					this.end = addSeconds(this.start, Number(parts[2]));
-					break;
-				default:
-					throw new Error("Unsupported duration: " +  parts[3]);
-			}
-		}
+        if (event.duration) {
+            // https://tools.ietf.org/html/rfc2445#section-4.3.6
+            const durationRE = /^([\+\-]?)PT?(\d+)([WHMSD])$/;
+            const parts = durationRE.exec(event.duration);
+            switch (parts[3]) {
+                case 'D':
+                    this.end = addDays(this.start, Number(parts[2]));
+                    break;
+                case 'H':
+                    this.end = addHours(this.start, Number(parts[2]));
+                    break;
+                case 'S':
+                    this.end = addSeconds(this.start, Number(parts[2]));
+                    break;
+                default:
+                    throw new Error("Unsupported duration: " +  parts[3]);
+            }
+        }
     }
 
     // borrowed from https://stackoverflow.com/a/36643588
