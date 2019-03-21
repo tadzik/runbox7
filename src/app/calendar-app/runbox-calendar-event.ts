@@ -25,6 +25,23 @@ import {
     addSeconds
 } from 'date-fns';
 
+// borrowed from https://stackoverflow.com/a/36643588
+Date.prototype.toJSON = function() {
+    var timezoneOffsetInHours = -(this.getTimezoneOffset() / 60); //UTC minus local time
+    var sign = timezoneOffsetInHours >= 0 ? '+' : '-';
+    var leadingZero = (Math.abs(timezoneOffsetInHours) < 10) ? '0' : '';
+
+    //It's a bit unfortunate that we need to construct a new Date instance 
+    //(we don't want _this_ Date instance to be modified)
+    var correctedDate = new Date(this.getFullYear(), this.getMonth(), 
+        this.getDate(), this.getHours(), this.getMinutes(), this.getSeconds(), 
+        this.getMilliseconds());
+    correctedDate.setHours(this.getHours() + timezoneOffsetInHours);
+    var iso = correctedDate.toISOString().replace('Z', '');
+
+    return iso + sign + leadingZero + Math.abs(timezoneOffsetInHours).toString() + ':00';
+}
+
 export class RunboxCalendarEvent implements CalendarEvent {
 	id?: 	   string | number;
     start:     Date;
