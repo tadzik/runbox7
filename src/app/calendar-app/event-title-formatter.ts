@@ -27,10 +27,10 @@ export class EventTitleFormatter extends CalendarEventTitleFormatter {
     }
 
     month(event: CalendarEvent): string {
-        return `<b>${new DatePipe(this.locale).transform(
-            event.start,
-            'H:mm',
-            this.locale
-        )}</b> ${event.title}`;
+        const time = !event.allDay
+            ? `<b>${new DatePipe(this.locale).transform(event.start, 'H:mm', this.locale)}</b>`
+            : '';
+
+        return `${time} ${event.title}`;
     }
 }

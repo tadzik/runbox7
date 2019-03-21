@@ -1,13 +1,16 @@
 <h1 mat-dialog-title>{{ event.title || "New event" }}</h1>
 <div mat-dialog-content>
-	<p>
-		<input matInput type="text" placeholder="Title" [(ngModel)]="event.title">
-	</p><p>
-		<label>Start:</label>
-		<input [(ngModel)]="event.start"
+    <p>
+        <input matInput type="text" placeholder="Title" [(ngModel)]="event.title">
+    </p><p>
+        <label>Start</label>
+        <input [(ngModel)]="event.start"
                [owlDateTimeTrigger]="start_dt" [owlDateTime]="start_dt">
         <owl-date-time #start_dt></owl-date-time>
-	</p>
+    </p><p>
+        <mat-checkbox [(ngModel)]="event.allDay">All-day event</mat-checkbox>
+    </p>
+
 </div>
 <div mat-dialog-actions style="justify-content: flex-end;">
     <button *ngIf="event.id"
@@ -18,7 +21,7 @@
             (click)="onCancelClick()">Cancel</button>
 
     <button mat-raised-button color="primary"
-            [mat-dialog-close]="event" cdkFocusInitial>
+            (click)="onSubmitClick()">
         <span *ngIf="event.id">  Update </span>
         <span *ngIf="!event.id"> Create </span>
     </button>

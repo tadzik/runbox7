@@ -88,6 +88,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
                 repr[prop] = value;
             }
         }
+        repr['isAllDay'] = this.allDay;
         return repr;
     }
 }

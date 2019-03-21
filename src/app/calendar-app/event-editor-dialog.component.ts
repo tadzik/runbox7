@@ -12,6 +12,7 @@ export class EventEditorDialog {
     event = new RunboxCalendarEvent({
         title: '',
         start: new Date(),
+        allDay: false,
     });
 
 	constructor(
@@ -37,4 +38,8 @@ export class EventEditorDialog {
 	onCancelClick(): void {
 		this.dialogRef.close();
 	}
+
+    onSubmitClick(): void {
+		this.dialogRef.close(this.event);
+    }
 }

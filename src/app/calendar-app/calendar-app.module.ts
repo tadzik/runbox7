@@ -35,6 +35,7 @@ import { FormsModule } from '@angular/forms';
 
 import {
   MatButtonModule,
+  MatCheckboxModule,
   MatDatepickerModule,
   MatDialogModule,
   MatFormFieldModule,
@@ -57,7 +58,8 @@ import {
     FormsModule,
     MenuModule,
     MatButtonModule,
-	MatDatepickerModule,
+    MatDatepickerModule,
+    MatCheckboxModule,
     MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
