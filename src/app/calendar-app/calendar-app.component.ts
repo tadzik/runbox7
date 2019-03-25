@@ -107,7 +107,9 @@ export class CalendarAppComponent {
         event.start = newStart;
         event.end = newEnd;
         console.log('Event changed', event);
-        this.refresh.next();
+        this.rmmapi.modifyCalendarEvent(event as RunboxCalendarEvent).subscribe(
+            res => console.log("Event updated:", res)
+        );
     }
 
     openEvent(event: CalendarEvent): void {
@@ -125,6 +127,14 @@ export class CalendarAppComponent {
                 );
             } else if (result) {
                 console.log("Updating event:", result);
+                this.rmmapi.modifyCalendarEvent(result).subscribe(
+                    res => {
+                        console.log("Event updated:", res);
+                        const idx = this.events.findIndex(e => e.id == result.id);
+                        this.events.splice(idx, 1, result);
+                        this.refresh.next();
+                    }
+                );
             }
         });
     }

@@ -32,6 +32,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     title:     string;
     allDay?:   boolean;
     calendar:  string = 'rmm7-testing';
+    draggable: boolean = true;
 
     constructor(event: any) {
         this.id     = event.id;

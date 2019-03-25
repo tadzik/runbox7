@@ -525,6 +525,12 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public modifyCalendarEvent(e: RunboxCalendarEvent): Observable<any> {
+        return this.http.post('/rest/v1/calendar/events/' + e.id, e).pipe(
+            map((res: HttpResponse<any>) => res)
+        );
+    }
+
     public deleteCalendarEvent(id: string|number): Observable<any> {
         return this.http.delete('/rest/v1/calendar/events/' + id).pipe(
             map((res: HttpResponse<any>) => res)
