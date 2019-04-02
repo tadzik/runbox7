@@ -88,6 +88,7 @@ export class CalendarAppComponent {
             for (var e of events) {
                 this.events.push(new RunboxCalendarEvent(e));
             }
+            console.log("Processed events:", this.events);
             this.refresh.next();
         });
     }

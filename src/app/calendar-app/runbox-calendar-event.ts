@@ -25,6 +25,8 @@ import {
     addSeconds
 } from 'date-fns';
 
+import * as moment from 'moment';
+
 export class RunboxCalendarEvent implements CalendarEvent {
     id?:       string | number;
     start:     Date;
@@ -35,11 +37,24 @@ export class RunboxCalendarEvent implements CalendarEvent {
     draggable: boolean = true;
 
     constructor(event: any) {
-        this.id     = event.id;
-        this.start  = new Date(event.start);
-        this.allDay = event.isAllDay;
-        this.title  = event.title;
+        if (event['VEVENT']) {
+            this.id = event.url;
 
+            const vevent = event['VEVENT'];
+            this.start   = moment(vevent.dtstart, moment.ISO_8601).toDate();
+            this.end     = moment(vevent.dtend, moment.ISO_8601).toDate();
+            this.title   = vevent.summary;
+            this.allDay  = vevent.dtstart.indexOf('T') === -1;
+        } else {
+            this.id     = event.id;
+            this.start  = event.start;
+            this.end    = event.end;
+            this.title  = event.title;
+            this.allDay = event.allDay;
+        }
+
+
+        /*
         if (event.duration) {
             // https://tools.ietf.org/html/rfc2445#section-4.3.6
             const durationRE = /^([\+\-]?)PT?(\d+)([WHMSD])$/;
@@ -58,6 +73,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
                     throw new Error("Unsupported duration: " +  parts[3]);
             }
         }
+        */
     }
 
     // borrowed from https://stackoverflow.com/a/36643588
