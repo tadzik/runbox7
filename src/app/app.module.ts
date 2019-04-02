@@ -83,7 +83,6 @@ const routes: Routes = [
       },
       { path: 'domainregistration', component: DomainRegisterComponent},
       { path: 'calendar', component: CalendarAppComponent },
-      { path: 'contacts', component: ContactsAppComponent },
       { path: 'index_dev.html', component: AppComponent },
       { path: 'app', component: AppComponent },
       { path: '',
