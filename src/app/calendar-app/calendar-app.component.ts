@@ -109,7 +109,10 @@ export class CalendarAppComponent {
         event.end = newEnd;
         console.log('Event changed', event);
         this.rmmapi.modifyCalendarEvent(event as RunboxCalendarEvent).subscribe(
-            res => console.log("Event updated:", res)
+            res => {
+                console.log("Event updated:", res);
+                this.refresh.next();
+            }
         );
     }
 
