@@ -38,11 +38,13 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
     constructor(event: any) {
         if (event['VEVENT']) {
-            this.id = event.url;
+            this.id = event.id;
 
             const vevent = event['VEVENT'];
             this.start   = moment(vevent.dtstart, moment.ISO_8601).toDate();
-            this.end     = moment(vevent.dtend, moment.ISO_8601).toDate();
+            if (vevent.dtend) {
+                this.end = moment(vevent.dtend, moment.ISO_8601).toDate();
+            }
             this.title   = vevent.summary;
             this.allDay  = vevent.dtstart.indexOf('T') === -1;
         } else {
@@ -94,19 +96,16 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     toJSON(): any {
-        let repr: any = {};
-        for (const prop in this) {
-            const value = this[prop];
-            if (value instanceof Date) {
-                repr[prop] = this.dateToJSON(value);
-            } else if (typeof(value) == 'function') {
-                continue;
-            } else {
-                repr[prop] = value;
+        return {
+            id: this.id,
+            calendar: this.calendar,
+            VEVENT: {
+                dtstart: this.dateToJSON(this.start),
+                dtend: this.end ? this.dateToJSON(this.end) : undefined,
+                summary: this.title,
+                _all_day: this.allDay
             }
-        }
-        repr['isAllDay'] = this.allDay;
-        return repr;
+        };
     }
 }
 
