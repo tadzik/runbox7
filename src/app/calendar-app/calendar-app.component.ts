@@ -43,22 +43,8 @@ import {
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { EventEditorDialog } from './event-editor-dialog.component';
+import { CalendarEditorDialog } from './calendar-editor-dialog.component';
 import { EventTitleFormatter } from './event-title-formatter';
-
-const colors: any = {
-    red: {
-        primary: '#ad2121',
-        secondary: '#FAE3E3'
-    },
-    blue: {
-        primary: '#1e90ff',
-        secondary: '#D1E8FF'
-    },
-    yellow: {
-        primary: '#e3bc08',
-        secondary: '#FDF1BA'
-    }
-};
 
 @Component({
     selector: 'calendar-app-component',
@@ -76,12 +62,23 @@ export class CalendarAppComponent {
 
     refresh: Subject<any> = new Subject();
 
-    events: CalendarEvent[] = [];
+    calendars: any = [];
+
+    events:       RunboxCalendarEvent[] = [];
+    shown_events: RunboxCalendarEvent[] = [];
 
     constructor(
         private dialog: MatDialog,
         private rmmapi: RunboxWebmailAPI
     ) {
+        console.log("Fetching calendars and events");
+        this.rmmapi.getCalendars().subscribe(calendars => {
+            console.log("Calendars loaded:", calendars);
+            for (const c of calendars) {
+                c.shown = true;
+                this.calendars.push(c);
+            }
+        });
         this.rmmapi.getCalendarEvents().subscribe(events => {
             console.log('Calendar events:', events);
             this.events = [];
@@ -89,8 +86,44 @@ export class CalendarAppComponent {
                 this.events.push(new RunboxCalendarEvent(e));
             }
             console.log("Processed events:", this.events);
+            this.filterEvents();
             this.refresh.next();
         });
+    }
+
+    editCalendar(calendar_id: string): void {
+        const cal = this.calendars.find(c => c.id == calendar_id);
+        const dialogRef = this.dialog.open(CalendarEditorDialog, { data: cal });
+        dialogRef.afterClosed().subscribe(result => {
+            console.log("Dialog result:", result);
+        });
+    }
+
+    toggleCalendar(calendar_id: string): void {
+        const cal = this.calendars.find(c => c.id == calendar_id);
+        cal.shown = !cal.shown;
+        this.filterEvents();
+    }
+
+    filterEvents(): void {
+        if (!this.calendars) {
+            // calendars not loaded yet, so just show everything
+            this.shown_events = this.events;
+            return;
+        }
+
+        let visible = {};
+        for (var c of this.calendars) {
+            visible[c.id] = c.shown;
+        }
+
+        this.shown_events = [];
+        for (var e of this.events) {
+            if (visible[e.calendar]) {
+                this.shown_events.push(e);
+            }
+        }
+        this.refresh.next();
     }
 
     dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {

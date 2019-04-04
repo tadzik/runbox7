@@ -14,6 +14,26 @@
             <mat-list-item>
                 <button mat-button> <mat-icon>import_export</mat-icon> Import event  </button>
             </mat-list-item>
+            <mat-list-item>
+                <h4> Calendars </h4>
+            </mat-list-item>
+            <mat-list-item *ngIf="calendars.length === 0">
+                Loading calendars...
+            </mat-list-item>
+            <mat-list-item *ngFor="let calendar of calendars">
+                <button mat-icon-button (click)="toggleCalendar(calendar.id)">
+                    <mat-icon *ngIf="calendar.shown"
+                        [ngStyle]="{ 'color': calendar['calendar-color'] || '#1e90ff' }">
+                        label
+                    </mat-icon>
+                    <mat-icon *ngIf="!calendar.shown">
+                        label_off
+                    </mat-icon>
+                </button>
+                <button mat-button (click)="editCalendar(calendar.id)">
+                    {{ calendar.displayname || calendar.id }}
+                </button>
+            </mat-list-item>
         </mat-nav-list>
     </mat-sidenav>
     <mat-sidenav-content>
@@ -71,7 +91,7 @@
           <mwl-calendar-month-view
             *ngSwitchCase="CalendarView.Month"
             [viewDate]="viewDate"
-            [events]="events"
+            [events]="shown_events"
             [refresh]="refresh"
             [activeDayIsOpen]="activeDayIsOpen"
             (dayClicked)="dayClicked($event.day)"
@@ -82,7 +102,7 @@
           <mwl-calendar-week-view
             *ngSwitchCase="CalendarView.Week"
             [viewDate]="viewDate"
-            [events]="events"
+            [events]="shown_events"
             [refresh]="refresh"
             (eventClicked)="openEvent($event.event)"
             (eventTimesChanged)="eventTimesChanged($event)"
@@ -91,7 +111,7 @@
           <mwl-calendar-day-view
             *ngSwitchCase="CalendarView.Day"
             [viewDate]="viewDate"
-            [events]="events"
+            [events]="shown_events"
             [refresh]="refresh"
             (eventClicked)="openEvent($event.event)"
             (eventTimesChanged)="eventTimesChanged($event)"

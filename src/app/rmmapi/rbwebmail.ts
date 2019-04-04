@@ -525,6 +525,12 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public getCalendars(): Observable<any> {
+        return this.http.get('/rest/v1/calendar/calendars').pipe(
+            map((res: HttpResponse<any>) => res['result']['calendars'])
+        );
+    }
+
     public getCalendarEvents(): Observable<any> {
         return this.http.get('/rest/v1/calendar/events').pipe(
             map((res: HttpResponse<any>) => res['result']['events'])
