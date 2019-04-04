@@ -33,7 +33,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     end?:      Date;
     title:     string;
     allDay?:   boolean;
-    calendar:  string = 'rmm7-testing';
+    calendar:  string = 'home';
     draggable: boolean = true;
 
     constructor(event: any) {
