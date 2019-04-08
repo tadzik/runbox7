@@ -28,18 +28,19 @@ import {
 import * as moment from 'moment';
 
 export class RunboxCalendarEvent implements CalendarEvent {
-    id?:       string | number;
+    id?:       string;
     start:     Date;
     end?:      Date;
     title:     string;
     allDay?:   boolean;
-    calendar:  string = 'home';
+    calendar:  string;
     draggable: boolean = true;
 
     constructor(event: any) {
-        if (event['VEVENT']) {
-            this.id = event.id;
+        this.id = event.id;
+        if (this.id) this.calendar = this.id.split('/')[0];
 
+        if (event['VEVENT']) {
             const vevent = event['VEVENT'];
             this.start   = moment(vevent.dtstart, moment.ISO_8601).toDate();
             if (vevent.dtend) {
@@ -48,13 +49,11 @@ export class RunboxCalendarEvent implements CalendarEvent {
             this.title   = vevent.summary;
             this.allDay  = vevent.dtstart.indexOf('T') === -1;
         } else {
-            this.id     = event.id;
             this.start  = event.start;
             this.end    = event.end;
             this.title  = event.title;
             this.allDay = event.allDay;
         }
-
 
         /*
         if (event.duration) {

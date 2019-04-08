@@ -48,7 +48,6 @@ import { EventTitleFormatter } from './event-title-formatter';
 
 @Component({
     selector: 'calendar-app-component',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './calendar-app.component.html',
     providers: [
         { provide: CalendarEventTitleFormatter, useClass: EventTitleFormatter }
@@ -87,15 +86,53 @@ export class CalendarAppComponent {
             }
             console.log("Processed events:", this.events);
             this.filterEvents();
-            this.refresh.next();
+        });
+    }
+
+    showAddCalendarDialog(): void {
+        const dialogRef = this.dialog.open(CalendarEditorDialog);
+        dialogRef.afterClosed().subscribe(result => {
+            console.log("Dialog result:", result);
+            if (!result) return;
+
+            let id = result['displayname'].toLowerCase();
+            id = id.replace(/\s+/g, '-');
+            id = id.replace(/[^a-z\-]/g, '');
+            console.log("id generated:", id);
+            result['id'] = id;
+            this.rmmapi.addCalendar(result).subscribe(() => {
+                console.log("Calendar created!");
+                result['shown'] = true;
+                this.calendars.push(result);
+            });
         });
     }
 
     editCalendar(calendar_id: string): void {
-        const cal = this.calendars.find(c => c.id == calendar_id);
+        let cal = this.calendars.find(c => c.id == calendar_id);
+        // edit a copy so that edit cancellation is possible
+        cal = {
+            id:               cal['id'],
+            displayname:      cal['displayname'],
+            'calendar-color': cal['calendar-color'],
+            shown:            cal['shown'],
+        };
         const dialogRef = this.dialog.open(CalendarEditorDialog, { data: cal });
         dialogRef.afterClosed().subscribe(result => {
             console.log("Dialog result:", result);
+            if (result === 'DELETE') {
+                this.rmmapi.deleteCalendar(cal['id']).subscribe(() => {
+                    console.log("Calendar deleted:", cal['id']);
+                    const idx = this.calendars.findIndex(c => c['id'] === cal['id']);
+                    this.calendars.splice(idx, 1);
+                });
+            } else {
+                this.rmmapi.modifyCalendar(result).subscribe(() => {
+                    console.log("Calendar edited:", result['id']);
+                    const idx = this.calendars.findIndex(c => c['id'] === result['id']);
+                    this.calendars.splice(idx, 1, result);
+                });
+            }
         });
     }
 
@@ -109,20 +146,20 @@ export class CalendarAppComponent {
         if (!this.calendars) {
             // calendars not loaded yet, so just show everything
             this.shown_events = this.events;
-            return;
-        }
+        } else {
+            let visible = {};
+            for (var c of this.calendars) {
+                visible[c.id] = c.shown;
+            }
 
-        let visible = {};
-        for (var c of this.calendars) {
-            visible[c.id] = c.shown;
-        }
-
-        this.shown_events = [];
-        for (var e of this.events) {
-            if (visible[e.calendar]) {
-                this.shown_events.push(e);
+            this.shown_events = [];
+            for (var e of this.events) {
+                if (visible[e.calendar]) {
+                    this.shown_events.push(e);
+                }
             }
         }
+
         this.refresh.next();
     }
 
@@ -144,7 +181,7 @@ export class CalendarAppComponent {
         this.rmmapi.modifyCalendarEvent(event as RunboxCalendarEvent).subscribe(
             res => {
                 console.log("Event updated:", res);
-                this.refresh.next();
+                this.filterEvents();
             }
         );
     }
@@ -159,7 +196,7 @@ export class CalendarAppComponent {
                         console.log("Event deleted:", res);
                         const idx = this.events.findIndex(e => e.id === event.id);
                         this.events.splice(idx, 1);
-                        this.refresh.next();
+                        this.filterEvents();
                     }
                 );
             } else if (result) {
@@ -169,7 +206,7 @@ export class CalendarAppComponent {
                         console.log("Event updated:", res);
                         const idx = this.events.findIndex(e => e.id == result.id);
                         this.events.splice(idx, 1, result);
-                        this.refresh.next();
+                        this.filterEvents();
                     }
                 );
             }
@@ -180,14 +217,14 @@ export class CalendarAppComponent {
         const dialogRef = this.dialog.open(EventEditorDialog, {});
         dialogRef.afterClosed().subscribe(event => {
             console.log("Dialog result:", event);
-			if (event) {
-				this.rmmapi.addCalendarEvent(event).subscribe(res => {
-					console.log("Event created:", res);
+            if (event) {
+                this.rmmapi.addCalendarEvent(event).subscribe(res => {
+                    console.log("Event created:", res);
                     event.id = res.id;
                     this.events.push(event);
-                    this.refresh.next();
+                    this.filterEvents();
                 });
-			}
+            }
         });
     }
 }

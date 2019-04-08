@@ -531,6 +531,24 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public addCalendar(e: any): Observable<any> {
+        return this.http.put('/rest/v1/calendar/calendars', e).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public modifyCalendar(e: any): Observable<any> {
+        return this.http.post('/rest/v1/calendar/calendars', e).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public deleteCalendar(id: string): Observable<any> {
+        return this.http.delete('/rest/v1/calendar/calendars/' + id).pipe(
+            map((res: HttpResponse<any>) => res)
+        );
+    }
+
     public getCalendarEvents(): Observable<any> {
         return this.http.get('/rest/v1/calendar/events').pipe(
             map((res: HttpResponse<any>) => res['result']['events'])

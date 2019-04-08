@@ -5,8 +5,8 @@ import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { DeleteConfirmationDialog } from './delete-confirmation-dialog.component';
 
 @Component({
-	selector: 'event-editor-dialog',
-	templateUrl: 'event-editor-dialog.component.html',
+    selector: 'event-editor-dialog',
+    templateUrl: 'event-editor-dialog.component.html',
 })
 export class EventEditorDialog {
     event = new RunboxCalendarEvent({
@@ -15,16 +15,16 @@ export class EventEditorDialog {
         allDay: false,
     });
 
-	constructor(
+    constructor(
         private dialog: MatDialog,
-		public dialogRef: MatDialogRef<EventEditorDialog>,
-		@Inject(MAT_DIALOG_DATA) public data: RunboxCalendarEvent
-	) {
-		if (data) {
+        public dialogRef: MatDialogRef<EventEditorDialog>,
+        @Inject(MAT_DIALOG_DATA) public data: RunboxCalendarEvent
+    ) {
+        if (data) {
             console.log("Opening event:", data);
-			this.event = data;
-		}
-	}
+            this.event = data;
+        }
+    }
 
     onDeleteClick(): void {
         const confirmRef = this.dialog.open(DeleteConfirmationDialog, { data: "event" });
@@ -35,11 +35,11 @@ export class EventEditorDialog {
         });
     }
 
-	onCancelClick(): void {
-		this.dialogRef.close();
-	}
+    onCancelClick(): void {
+        this.dialogRef.close();
+    }
 
     onSubmitClick(): void {
-		this.dialogRef.close(this.event);
+        this.dialogRef.close(this.event);
     }
 }
