@@ -41,6 +41,7 @@ import {
 } from 'angular-calendar';
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { EventEditorDialog } from './event-editor-dialog.component';
 import { CalendarEditorDialog } from './calendar-editor-dialog.component';
@@ -61,7 +62,7 @@ export class CalendarAppComponent {
 
     refresh: Subject<any> = new Subject();
 
-    calendars: any = [];
+    calendars: RunboxCalendar[] = [];
 
     events:       RunboxCalendarEvent[] = [];
     shown_events: RunboxCalendarEvent[] = [];
@@ -74,7 +75,6 @@ export class CalendarAppComponent {
         this.rmmapi.getCalendars().subscribe(calendars => {
             console.log("Calendars loaded:", calendars);
             for (const c of calendars) {
-                c.shown = true;
                 this.calendars.push(c);
             }
         });
@@ -95,14 +95,10 @@ export class CalendarAppComponent {
             console.log("Dialog result:", result);
             if (!result) return;
 
-            let id = result['displayname'].toLowerCase();
-            id = id.replace(/\s+/g, '-');
-            id = id.replace(/[^a-z\-]/g, '');
-            console.log("id generated:", id);
-            result['id'] = id;
+            result.generateID();
+
             this.rmmapi.addCalendar(result).subscribe(() => {
                 console.log("Calendar created!");
-                result['shown'] = true;
                 this.calendars.push(result);
             });
         });
@@ -111,25 +107,21 @@ export class CalendarAppComponent {
     editCalendar(calendar_id: string): void {
         let cal = this.calendars.find(c => c.id == calendar_id);
         // edit a copy so that edit cancellation is possible
-        cal = {
-            id:               cal['id'],
-            displayname:      cal['displayname'],
-            'calendar-color': cal['calendar-color'],
-            shown:            cal['shown'],
-        };
+        cal = new RunboxCalendar(cal);
+
         const dialogRef = this.dialog.open(CalendarEditorDialog, { data: cal });
         dialogRef.afterClosed().subscribe(result => {
             console.log("Dialog result:", result);
             if (result === 'DELETE') {
-                this.rmmapi.deleteCalendar(cal['id']).subscribe(() => {
-                    console.log("Calendar deleted:", cal['id']);
-                    const idx = this.calendars.findIndex(c => c['id'] === cal['id']);
+                this.rmmapi.deleteCalendar(cal.id).subscribe(() => {
+                    console.log("Calendar deleted:", cal.id);
+                    const idx = this.calendars.findIndex(c => c.id === cal.id);
                     this.calendars.splice(idx, 1);
                 });
             } else {
                 this.rmmapi.modifyCalendar(result).subscribe(() => {
                     console.log("Calendar edited:", result['id']);
-                    const idx = this.calendars.findIndex(c => c['id'] === result['id']);
+                    const idx = this.calendars.findIndex(c => c.id === result['id']);
                     this.calendars.splice(idx, 1, result);
                 });
             }
@@ -143,8 +135,8 @@ export class CalendarAppComponent {
     }
 
     filterEvents(): void {
-        if (!this.calendars) {
-            // calendars not loaded yet, so just show everything
+        if (this.calendars.length === 0) {
+            console.log("Calendars not loaded yet, showing all events");
             this.shown_events = this.events;
         } else {
             let visible = {};
@@ -188,7 +180,7 @@ export class CalendarAppComponent {
 
     openEvent(event: CalendarEvent): void {
         console.log("Opening event", event);
-        const dialogRef = this.dialog.open(EventEditorDialog, { 'data': event });
+        const dialogRef = this.dialog.open(EventEditorDialog, { data: { event: event, calendars: this.calendars } });
         dialogRef.afterClosed().subscribe(result => {
             if (result === 'DELETE') {
                 this.rmmapi.deleteCalendarEvent(event.id).subscribe(
@@ -214,7 +206,7 @@ export class CalendarAppComponent {
     }
 
     addEvent(): void {
-        const dialogRef = this.dialog.open(EventEditorDialog, {});
+        const dialogRef = this.dialog.open(EventEditorDialog, { data: { calendars: this.calendars } });
         dialogRef.afterClosed().subscribe(event => {
             console.log("Dialog result:", event);
             if (event) {

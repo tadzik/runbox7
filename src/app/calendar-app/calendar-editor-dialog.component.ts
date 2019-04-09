@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
+import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { DeleteConfirmationDialog } from './delete-confirmation-dialog.component';
 
@@ -9,7 +10,7 @@ import { DeleteConfirmationDialog } from './delete-confirmation-dialog.component
     templateUrl: 'calendar-editor-dialog.component.html',
 })
 export class CalendarEditorDialog {
-    calendar = {};
+    calendar: RunboxCalendar = new RunboxCalendar({ id: '' });
     name = "New calendar";
 
     constructor(
@@ -20,7 +21,7 @@ export class CalendarEditorDialog {
         if (data) {
             console.log("Opening calendar:", data);
             this.calendar = data;
-            this.name = data['displayname'] || data['id'];
+            this.name = data.toString();
         }
     }
 

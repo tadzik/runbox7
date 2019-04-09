@@ -23,6 +23,7 @@ import { Observable ,  of, from ,  Subject ,  AsyncSubject } from 'rxjs';
 import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
 
 import { Contact } from '../contacts-app/contact';
+import { RunboxCalendar } from '../calendar-app/runbox-calendar';
 import { RunboxCalendarEvent } from '../calendar-app/runbox-calendar-event';
 import { DraftFormModel } from '../compose/draftdesk.service';
 import { MatSnackBar, MatDialog } from '@angular/material';
@@ -525,19 +526,22 @@ export class RunboxWebmailAPI {
         );
     }
 
-    public getCalendars(): Observable<any> {
+    public getCalendars(): Observable<RunboxCalendar[]> {
         return this.http.get('/rest/v1/calendar/calendars').pipe(
-            map((res: HttpResponse<any>) => res['result']['calendars'])
+            map((res: HttpResponse<any>) => res['result']['calendars']),
+            map((calendars: any[]) =>
+                calendars.map((c) => new RunboxCalendar(c))
+            )
         );
     }
 
-    public addCalendar(e: any): Observable<any> {
+    public addCalendar(e: RunboxCalendar): Observable<any> {
         return this.http.put('/rest/v1/calendar/calendars', e).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
     }
 
-    public modifyCalendar(e: any): Observable<any> {
+    public modifyCalendar(e: RunboxCalendar): Observable<any> {
         return this.http.post('/rest/v1/calendar/calendars', e).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );

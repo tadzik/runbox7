@@ -26,7 +26,7 @@
             <mat-list-item *ngFor="let calendar of calendars">
                 <button mat-icon-button (click)="toggleCalendar(calendar.id)">
                     <mat-icon *ngIf="calendar.shown"
-                        [ngStyle]="{ 'color': calendar['calendar-color'] || '#1e90ff' }">
+                        [ngStyle]="{ 'color': calendar.color || '#1e90ff' }">
                         label
                     </mat-icon>
                     <mat-icon *ngIf="!calendar.shown">

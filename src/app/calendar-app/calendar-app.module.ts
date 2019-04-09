@@ -43,6 +43,7 @@ import {
   MatIconModule,
   MatInputModule,
   MatListModule,
+  MatSelectModule,
   MatSidenavModule,
   MatToolbarModule,
 } from '@angular/material';
@@ -67,6 +68,7 @@ import {
     MatIconModule,
     MatInputModule,
     MatListModule,
+    MatSelectModule,
     MatSidenavModule,
     MatToolbarModule,
     OwlDateTimeModule,
