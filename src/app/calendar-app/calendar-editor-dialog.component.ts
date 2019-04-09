@@ -3,30 +3,30 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
-import { DeleteConfirmationDialog } from './delete-confirmation-dialog.component';
+import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 
 @Component({
-    selector: 'calendar-editor-dialog',
+    selector: 'app-calendar-editor-dialog-component',
     templateUrl: 'calendar-editor-dialog.component.html',
 })
-export class CalendarEditorDialog {
+export class CalendarEditorDialogComponent {
     calendar: RunboxCalendar = new RunboxCalendar({ id: '' });
-    name = "New calendar";
+    name = 'New calendar';
 
     constructor(
         private dialog: MatDialog,
-        public dialogRef: MatDialogRef<CalendarEditorDialog>,
+        public dialogRef: MatDialogRef<CalendarEditorDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
         if (data) {
-            console.log("Opening calendar:", data);
+            console.log('Opening calendar:', data);
             this.calendar = data;
             this.name = data.toString();
         }
     }
 
     onDeleteClick(): void {
-        const confirmRef = this.dialog.open(DeleteConfirmationDialog, { data: "calendar" });
+        const confirmRef = this.dialog.open(DeleteConfirmationDialogComponent, { data: 'calendar' });
         confirmRef.afterClosed().subscribe(result => {
             if (result) {
                 this.dialogRef.close('DELETE');

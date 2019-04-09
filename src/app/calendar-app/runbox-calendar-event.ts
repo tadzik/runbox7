@@ -34,11 +34,13 @@ export class RunboxCalendarEvent implements CalendarEvent {
     title:     string;
     allDay?:   boolean;
     calendar:  string;
-    draggable: boolean = true;
+    draggable = true;
 
     constructor(event: any) {
         this.id = event.id;
-        if (this.id) this.calendar = this.id.split('/')[0];
+        if (this.id) {
+            this.calendar = this.id.split('/')[0];
+        }
 
         if (event['VEVENT']) {
             const vevent = event['VEVENT'];
@@ -79,17 +81,17 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
     // borrowed from https://stackoverflow.com/a/36643588
     dateToJSON(date: Date): string {
-        var timezoneOffsetInHours = -(date.getTimezoneOffset() / 60); //UTC minus local time
-        var sign = timezoneOffsetInHours >= 0 ? '+' : '-';
-        var leadingZero = (Math.abs(timezoneOffsetInHours) < 10) ? '0' : '';
+        const timezoneOffsetInHours = -(date.getTimezoneOffset() / 60); // UTC minus local time
+        const sign = timezoneOffsetInHours >= 0 ? '+' : '-';
+        const leadingZero = (Math.abs(timezoneOffsetInHours) < 10) ? '0' : '';
 
-        //It's a bit unfortunate that we need to construct a new Date instance 
-        //(we don't want _date_ Date instance to be modified)
-        var correctedDate = new Date(date.getFullYear(), date.getMonth(), 
-            date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), 
+        // It's a bit unfortunate that we need to construct a new Date instance 
+        // (we don't want _date_ Date instance to be modified)
+        const correctedDate = new Date(date.getFullYear(), date.getMonth(),
+            date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(),
             date.getMilliseconds());
         correctedDate.setHours(date.getHours() + timezoneOffsetInHours);
-        var iso = correctedDate.toISOString().replace('Z', '');
+        const iso = correctedDate.toISOString().replace('Z', '');
 
         return iso + sign + leadingZero + Math.abs(timezoneOffsetInHours).toString() + ':00';
     }

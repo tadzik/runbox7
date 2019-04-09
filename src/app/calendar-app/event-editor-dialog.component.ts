@@ -3,13 +3,13 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
-import { DeleteConfirmationDialog } from './delete-confirmation-dialog.component';
+import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 
 @Component({
-    selector: 'event-editor-dialog',
+    selector: 'app-calendar-event-editor-dialog',
     templateUrl: 'event-editor-dialog.component.html',
 })
-export class EventEditorDialog {
+export class EventEditorDialogComponent {
     event = new RunboxCalendarEvent({
         title: '',
         start: new Date(),
@@ -19,7 +19,7 @@ export class EventEditorDialog {
 
     constructor(
         private dialog: MatDialog,
-        public dialogRef: MatDialogRef<EventEditorDialog>,
+        public dialogRef: MatDialogRef<EventEditorDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
         if (data['event']) {
@@ -29,7 +29,7 @@ export class EventEditorDialog {
     }
 
     onDeleteClick(): void {
-        const confirmRef = this.dialog.open(DeleteConfirmationDialog, { data: "event" });
+        const confirmRef = this.dialog.open(DeleteConfirmationDialogComponent, { data: 'event' });
         confirmRef.afterClosed().subscribe(result => {
             if (result) {
                 this.dialogRef.close('DELETE');

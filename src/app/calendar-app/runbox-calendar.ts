@@ -34,7 +34,7 @@ export class RunboxCalendar {
         let id = this.displayname.toLowerCase();
         id = id.replace(/\s+/g, '-');
         id = id.replace(/[^a-z\-]/g, '');
-        console.log("id generated:", id);
+        console.log('id generated:', id);
         this.id = id;
     }
 
