@@ -3,6 +3,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
+import { ColorSelectorDialogComponent } from './color-selector-dialog.component';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 
 @Component({
@@ -23,6 +24,15 @@ export class CalendarEditorDialogComponent {
             this.calendar = data;
             this.name = data.toString();
         }
+    }
+
+    openColorSelector(): void {
+        const colorDialogRef = this.dialog.open(ColorSelectorDialogComponent, { data: [this.calendar.color] });
+        colorDialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                this.calendar.color = result;
+            }
+        });
     }
 
     onDeleteClick(): void {

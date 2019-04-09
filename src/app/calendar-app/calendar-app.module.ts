@@ -29,6 +29,7 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 
 import { CalendarAppComponent } from './calendar-app.component';
 import { CalendarEditorDialogComponent } from './calendar-editor-dialog.component';
+import { ColorSelectorDialogComponent } from './color-selector-dialog.component';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 import { EventEditorDialogComponent } from './event-editor-dialog.component';
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
@@ -52,6 +53,7 @@ import {
   declarations: [
     CalendarAppComponent,
     CalendarEditorDialogComponent,
+    ColorSelectorDialogComponent,
     DeleteConfirmationDialogComponent,
     EventEditorDialogComponent
   ],
@@ -82,6 +84,7 @@ import {
   ],
   entryComponents: [
     CalendarEditorDialogComponent,
+    ColorSelectorDialogComponent,
     DeleteConfirmationDialogComponent,
     EventEditorDialogComponent
   ],

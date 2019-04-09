@@ -111,6 +111,9 @@ export class CalendarAppComponent {
 
         const dialogRef = this.dialog.open(CalendarEditorDialogComponent, { data: cal });
         dialogRef.afterClosed().subscribe(result => {
+            if (!result) {
+                return;
+            }
             console.log('Dialog result:', result);
             if (result === 'DELETE') {
                 this.rmmapi.deleteCalendar(cal.id).subscribe(() => {

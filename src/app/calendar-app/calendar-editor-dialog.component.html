@@ -13,10 +13,16 @@
         </mat-form-field>
     </p>
     <p>
-        <mat-form-field>
-            <input matInput type="text" placeholder="Colour" [(ngModel)]="calendar.color">
-            <mat-hint> Optional </mat-hint>
-        </mat-form-field>
+        <mat-label> Colour </mat-label>
+        <button mat-button (click)="openColorSelector()">
+            <span *ngIf="calendar.color; else noColor">
+                <mat-icon [ngStyle]="{ 'color': calendar.color }"> brightness_1 </mat-icon>
+                {{ calendar.color }}
+            </span>
+            <ng-template #noColor>
+                Select colour
+            </ng-template>
+        </button>
     </p>
 </div>
 
