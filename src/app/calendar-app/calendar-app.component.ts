@@ -77,6 +77,7 @@ export class CalendarAppComponent {
             for (const c of calendars) {
                 this.calendars.push(c);
             }
+            this.updateEventColors();
         });
         this.rmmapi.getCalendarEvents().subscribe(events => {
             console.log('Calendar events:', events);
@@ -85,6 +86,7 @@ export class CalendarAppComponent {
                 this.events.push(new RunboxCalendarEvent(e));
             }
             console.log('Processed events:', this.events);
+            this.updateEventColors();
             this.filterEvents();
         });
     }
@@ -127,6 +129,7 @@ export class CalendarAppComponent {
                     const idx = this.calendars.findIndex(c => c.id === result['id']);
                     this.calendars.splice(idx, 1, result);
                 });
+                this.updateEventColors();
             }
         });
     }
@@ -221,5 +224,16 @@ export class CalendarAppComponent {
                 });
             }
         });
+    }
+
+    updateEventColors(): void {
+        const calendar_color = {};
+        for (const c of this.calendars) {
+            calendar_color[c.id] = c.color;
+        }
+
+        for (const e of this.events) {
+            e.color.primary = calendar_color[e.calendar];
+        }
     }
 }

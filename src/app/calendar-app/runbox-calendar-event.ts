@@ -17,7 +17,8 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { CalendarEvent, } from 'angular-calendar';
+import { CalendarEvent } from 'angular-calendar';
+import { EventColor } from 'calendar-utils';
 
 import {
     addDays,
@@ -34,6 +35,8 @@ export class RunboxCalendarEvent implements CalendarEvent {
     title:     string;
     allDay?:   boolean;
     calendar:  string;
+
+    color     = {} as EventColor;
     draggable = true;
 
     constructor(event: any) {
