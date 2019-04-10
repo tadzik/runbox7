@@ -13,6 +13,7 @@ export class EventEditorDialogComponent {
     event = new RunboxCalendarEvent({
         title: '',
         start: new Date(),
+        end: new Date(),
         allDay: false,
     });
     calendars: RunboxCalendar[];

@@ -19,6 +19,11 @@
                [owlDateTimeTrigger]="start_dt" [owlDateTime]="start_dt">
         <owl-date-time #start_dt></owl-date-time>
     </p><p>
+        <label>End</label>
+        <input [(ngModel)]="event.end"
+               [owlDateTimeTrigger]="end_dt" [owlDateTime]="end_dt">
+        <owl-date-time #end_dt></owl-date-time>
+    </p><p>
         <mat-checkbox [(ngModel)]="event.allDay">All-day event</mat-checkbox>
     </p>
 
