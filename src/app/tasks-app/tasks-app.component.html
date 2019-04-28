@@ -1,0 +1,31 @@
+<mat-sidenav-container autosize>
+    <mat-sidenav #sidemenu mode="side" opened>
+        <mat-nav-list dense>
+            <mat-list-item>
+                <a mat-button routerLink="">
+                    <mat-icon> settings </mat-icon> Settings
+                </a>
+            </mat-list-item>
+            <mat-list-item>
+                <a mat-button routerLink="">
+                    <mat-icon> add </mat-icon> New task
+                </a>
+            </mat-list-item>
+        </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <mat-toolbar style="display: flex">
+            <button mat-icon-button (click)="sidemenu.toggle()">
+                <mat-icon>menu</mat-icon>
+            </button>
+        </mat-toolbar>
+        <div style="display: flex; flex-flow: row wrap;">
+            <tasks-app-task
+                     *ngFor="let t of tasks"
+                     [task]="t"
+                     [showComplete]="false"
+            >
+            </tasks-app-task>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>

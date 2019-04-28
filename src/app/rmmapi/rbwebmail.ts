@@ -571,6 +571,12 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public getCalendarTasks(): Observable<any> {
+        return this.http.get('/rest/v1/calendar/todos').pipe(
+            map((res: HttpResponse<any>) => res['result']['todos'])
+        );
+    }
+
     public addCalendarEvent(e: RunboxCalendarEvent): Observable<any> {
         return this.http.put('/rest/v1/calendar/events', e).pipe(
             map((res: HttpResponse<any>) => res['result'])

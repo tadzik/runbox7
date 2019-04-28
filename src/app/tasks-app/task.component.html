@@ -1,0 +1,26 @@
+<mat-card [ngStyle]="{
+    'margin': '1em',
+    'display': ( (showComplete || task.VTODO.status != 'COMPLETED' ) ? 'block' : 'none' )
+    }">
+    <mat-card-header>
+        <mat-card-title> {{ task.VTODO.summary }} </mat-card-title>
+        <mat-card-subtitle> {{ task.VTODO.categories }} </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <p>
+            {{ task.VTODO.description }}
+        </p>
+        <div>
+            <mat-slider
+              thumbLabel
+              tickInterval="10"
+              [(ngModel)]="task.VTODO['percent-complete']"
+            >
+            </mat-slider>
+            {{ task.VTODO['percent-complete'] }}% complete
+        </div>
+    </mat-card-content>
+    <mat-card-actions>
+        <button mat-raised-button color="primary"> Finish </button>
+    </mat-card-actions>
+</mat-card>

@@ -64,6 +64,8 @@ import { MainContainerComponent } from './maincontainer.component';
 import { HeaderToolbarComponent } from './menu/headertoolbar.component';
 import { LocalSearchIndexModule } from './xapian/localsearchindex.module';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import { TasksAppModule } from './tasks-app/tasks-app.module';
+import { TasksAppComponent } from './tasks-app/tasks-app.component';
 import { environment } from '../environments/environment';
 import { SearchExpressionBuilderModule } from './xapian/search-expression-builder/search-expression-builder.module';
 import { UpdateAlertModule } from './updatealert/updatealert.module';
@@ -83,6 +85,7 @@ const routes: Routes = [
       },
       { path: 'domainregistration', component: DomainRegisterComponent},
       { path: 'calendar', component: CalendarAppComponent },
+      { path: 'tasks', component: TasksAppComponent },
       { path: 'index_dev.html', component: AppComponent },
       { path: 'app', component: AppComponent },
       { path: '',
@@ -127,6 +130,7 @@ const routes: Routes = [
     MailViewerModule,
     CalendarAppModule,
     ContactsAppModule,
+    TasksAppModule,
     ResizerModule,
     DomainRegisterModule,
     UpdateAlertModule,
