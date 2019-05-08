@@ -1,28 +1,23 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2019 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import {
-    Component,
-    ChangeDetectionStrategy,
-    ViewChild,
-    TemplateRef
-} from '@angular/core';
+import { Component } from '@angular/core';
 
 import { MatDialog } from '@angular/material';
 
@@ -45,6 +40,7 @@ import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { EventEditorDialogComponent } from './event-editor-dialog.component';
 import { CalendarEditorDialogComponent } from './calendar-editor-dialog.component';
+import { CalendarSettingsDialogComponent } from './calendar-settings-dialog.component';
 import { EventTitleFormatter } from './event-title-formatter';
 
 @Component({
@@ -59,6 +55,9 @@ export class CalendarAppComponent {
     CalendarView = CalendarView;
     viewDate: Date = new Date();
     activeDayIsOpen = false;
+    settings = {
+        weekStartsOnSunday: false,
+    };
 
     refresh: Subject<any> = new Subject();
 
@@ -208,6 +207,17 @@ export class CalendarAppComponent {
                     }
                 );
             }
+        });
+    }
+
+    openSettings(): void {
+        const dialogRef = this.dialog.open(CalendarSettingsDialogComponent, { data: this.settings });
+        dialogRef.afterClosed().subscribe(result => {
+            // we need to do this weird dance to make the calendar pick up
+            // potential changes to settings.weekStartsOnSunday
+            const desiredView = this.view;
+            this.view = null;
+            setTimeout(() => this.view = desiredView);
         });
     }
 
