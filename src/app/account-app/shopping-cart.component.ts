@@ -35,8 +35,9 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
     templateUrl: './shopping-cart.component.html',
 })
 export class ShoppingCartComponent {
-    products = {}; // pid => Product
-    itemsReady = false;
+    products     = {}; // pid => Product
+    itemsReady   = false;
+    total        = 0.0;
     tableColumns = ['name', 'quantity', 'price', 'total-price', 'remove'];
 
     currency: string;
@@ -85,17 +86,27 @@ export class ShoppingCartComponent {
         });
     }
 
+    calculateTotal() {
+        this.total = 0.0;
+        for (const i of this.items) {
+            this.total += i.quantity * this.products[i.pid].price;
+        }
+    }
+
     loadProducts(items: any[], currency: string) {
         this.rmmapi.getProducts(this.items.map(i => i.pid), this.currency).subscribe(products => {
             for (const p of products) {
                 this.products[p.pid] = p;
             }
+            this.calculateTotal();
             this.itemsReady = true;
         });
     }
 
     remove(p: ProductOrder) {
         this.paymentsservice.cart.remove(p);
+        this.items = this.paymentsservice.cart.items;
+        this.calculateTotal();
     }
 
     initiatePayment(method: string) {

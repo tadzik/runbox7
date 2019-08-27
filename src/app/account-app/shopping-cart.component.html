@@ -43,7 +43,7 @@
     <ng-container matColumnDef="total-price">
         <th mat-header-cell *matHeaderCellDef> Total </th>
         <td mat-cell *matCellDef="let p"> {{ products[p.pid].price * p.quantity | number:'1.2-2' }} {{ currency }} </td>
-        <td mat-footer-cell *matFooterCellDef> <strong> FIXME {{ 0.0 | number:'1.2-2' }} {{ currency }} </strong> </td>
+        <td mat-footer-cell *matFooterCellDef> <strong> {{ total | number:'1.2-2' }} {{ currency }} </strong> </td>
     </ng-container>
 
     <ng-container matColumnDef="remove">
