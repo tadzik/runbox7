@@ -24,6 +24,6 @@ export class Product {
     subtype?:    string;
     name:        string;
     description: string;
-    details?:    string[]; 
+    details?:    string[];
     price:       number;
 }

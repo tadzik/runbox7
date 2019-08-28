@@ -64,7 +64,6 @@ export class ShoppingCartComponent {
                 this.fromUrl = true;
                 this.tableColumns = ['name', 'quantity', 'price', 'total-price']; // no 'remove'
                 this.items   = source['items'];
-                console.log("Got URL items:", this.items);
                 if (source['domregHash']) {
                     // this is a domain purchase: the only supported currency is USD
                     this.domregHash = source['domregHash'];
@@ -111,7 +110,6 @@ export class ShoppingCartComponent {
 
     initiatePayment(method: string) {
         this.rmmapi.orderProducts(this.items, method, this.currency, this.domregHash).subscribe(tx => {
-            console.log("Transaction:", tx);
             let dialogRef: MatDialogRef<any>;
             if (method === 'stripe') {
                 dialogRef = this.dialog.open(StripePaymentDialogComponent, {

@@ -103,7 +103,6 @@ export class LoginComponent implements OnInit {
     }
 
     private handleLoginResponse(loginresonseobj: any) {
-        console.log("login response:", loginresonseobj);
         if (loginresonseobj.user_status > 0 && loginresonseobj.user_status < 5) {
             this.accountexpired = true;
             this.loginerrormessage = null;

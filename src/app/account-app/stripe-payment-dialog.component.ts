@@ -67,15 +67,13 @@ export class StripePaymentDialogComponent implements AfterViewInit {
     }
 
     async ngAfterViewInit() {
-        console.log("I'm AfterViewInit");
         await this.scriptLoader.loadScript('stripe');
-        console.log("stripe loaded");
 
         this.paymentsservice.stripePubkey.subscribe(stripePubkey => {
             const stripeStyle = {
                 base: {
                     fontSize: '18px',
-                    color: "#32325d",
+                    color: '#32325d',
                     textAlign: 'center',
                 }
             };
@@ -110,7 +108,7 @@ export class StripePaymentDialogComponent implements AfterViewInit {
             expiry.mount(this.cardExpiry.nativeElement);
             expiry.addEventListener('change', e => this.errorHandler(e));
 
-            var cvc = elements.create('cardCvc', {style: stripeStyle});
+            const cvc = elements.create('cardCvc', {style: stripeStyle});
             cvc.mount(this.cardCvc.nativeElement);
             cvc.addEventListener('change', e => this.errorHandler(e));
 
@@ -127,7 +125,6 @@ export class StripePaymentDialogComponent implements AfterViewInit {
     }
 
     submitPayment() {
-        console.log("Paying...");
         this.state = 'processing';
 
         const additionals = { billing_details: { address: { postal_code: this.zipCode } } };
@@ -139,18 +136,15 @@ export class StripePaymentDialogComponent implements AfterViewInit {
             } else {
                 console.log(result);
                 this.paymentsservice.submitStripePayment(this.tid, result.paymentMethod.id).subscribe(res => {
-                    console.log("Got payment result:", res);
                     if (res.status === 'requires_source_action') {
-                        console.log("Handling card action...");
                         const client_secret = res.client_secret;
-                        this.stripe.handleCardAction(client_secret).then(res => {
-                            console.log("Action result:", res);
-                            if (res.error) {
+                        this.stripe.handleCardAction(client_secret).then(actionRes => {
+                            if (actionRes.error) {
                                 this.state = 'failure';
-                                this.stripeError = res.error.message;
+                                this.stripeError = actionRes.error.message;
                             } else {
-                                console.log(res.paymentIntent);
-                                this.confirmPayment(res.paymentIntent.id);
+                                console.log(actionRes.paymentIntent);
+                                this.confirmPayment(actionRes.paymentIntent.id);
                             }
                         });
                     } else if (res.status === 'succeeded') {
@@ -167,7 +161,6 @@ export class StripePaymentDialogComponent implements AfterViewInit {
     confirmPayment(paymentIntentId: string) {
         this.paymentsservice.confirmStripePayment(paymentIntentId).subscribe(
             pi => {
-                console.log("Payment hopefully confirmed:", pi);
                 if (pi.status === 'succeeded') {
                     this.state = 'finished';
                 } else {
@@ -178,7 +171,6 @@ export class StripePaymentDialogComponent implements AfterViewInit {
     }
 
     fail(error: any) {
-        console.log("FAIL!", error);
         this.state = 'failure';
 
         if (typeof error === 'string') {
