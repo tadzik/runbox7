@@ -162,7 +162,7 @@ export class MessageFlagChange {
 @Injectable()
 export class RunboxWebmailAPI {
 
-    public static readonly LIST_ALL_MESSAGES_CHUNK_SIZE: number = 1000;
+    public static readonly LIST_ALL_MESSAGES_CHUNK_SIZE: number = 10000;
 
     public messageFlagChangeSubject: Subject<MessageFlagChange> = new Subject();
     public me: AsyncSubject<RunboxMe> = new AsyncSubject();
@@ -201,8 +201,14 @@ export class RunboxWebmailAPI {
             });
     }
 
-    public getMessageContents(messageId: number): Observable<MessageContents> {
+    public deleteCachedMessageContents(messageId: number) {
         if (this.messageContentsCache[messageId]) {
+            delete this.messageContentsCache[messageId];
+        }
+    }
+
+    public getMessageContents(messageId: number, refresh = false): Observable<MessageContents> {
+        if (!refresh && this.messageContentsCache[messageId]) {
             return this.messageContentsCache[messageId];
         } else {
             const messageContentsObservable = new AsyncSubject<MessageContents>();
@@ -327,6 +333,15 @@ export class RunboxWebmailAPI {
     renameFolder(folderId: number, newFolderName: string): Observable<boolean> {
         const req = this.http.put('/rest/v1/email_folder/rename', {
             'new_folder': newFolderName,
+            'folder_id': folderId
+        });
+        this.subscribeShowBackendErrors(req);
+        return req.pipe(map((res: any) => res.status === 'success'));
+    }
+
+    moveFolder(folderId: number, newParentFolderId: number): Observable<boolean> {
+        const req = this.http.put('/rest/v1/email_folder/move', {
+            'to_folder': newParentFolderId,
             'folder_id': folderId
         });
         this.subscribeShowBackendErrors(req);
@@ -546,7 +561,16 @@ export class RunboxWebmailAPI {
 
     public migrateContacts(): Observable<any> {
         return this.http.post('/rest/v1/addresses_contact/migrate', {}).pipe(
-            map((res: HttpResponse<any>) => res['status'])
+            map((contacts: any[]) =>
+                contacts.map((contact) => new Contact(contact))
+            )
+        );
+    }
+
+    public importContacts(vcf: string): Observable<Contact[]> {
+        return this.http.put('/rest/v1/addresses_contact/vcf', { vcf: vcf }).pipe(
+            map((res: HttpResponse<any>) => res['result']['contacts']),
+            map((contacts: any[]) => contacts.map((contact) => new Contact(contact)))
         );
     }
 

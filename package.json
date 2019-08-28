@@ -16,14 +16,13 @@
     "mockserver": "tsc -p e2e/tsconfig.e2e.json && node out-tsc/e2e/mockserver/mockserver.main.js",
     "buildrmm6": "ng build --prod --base-href=/app/ rmm6",
     "build": "node check-prod-bundle-dependencies.js && node updatebuildtimestamp.js && ng build --prod --base-href=/app/ && cp ngsw-worker-patched.js dist/ngsw-worker.js && git checkout src/app/buildtimestamp.ts",
-    "check-licenses": "node check-licenses.js",
+    "policy": "node policy-tests/run-all.js",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "lib": "node ngmakelib-conf.js",
     "libwatch": "node ngmakelib-conf.js --watch",
-    "publishlib": "cd .ngmakelibtmp/dist && npm publish",
-    "webdriver-update-ci": "webdriver-manager update --standalone false --gecko false --versions.chrome 2.37"
+    "publishlib": "cd .ngmakelibtmp/dist && npm publish"
   },
   "dependencies": {
     "@angular/animations": "7.2.15",
@@ -50,7 +49,7 @@
     "runbox-searchindex": "^0.1.0",
     "rxjs": "^6.5.2",
     "rxjs-compat": "^6.2.2",
-    "tinymce": "4.7.4",
+    "tinymce": "^5.0.12",
     "zone.js": "^0.8.29"
   },
   "devDependencies": {
@@ -70,7 +69,7 @@
     "karma-jasmine": "~2.0.1",
     "karma-jasmine-html-reporter": "^1.4.0",
     "ngmakelib": "^0.2.6",
-    "protractor": "~5.4.2",
+    "protractor": "^5.4.2",
     "ts-node": "~8.0.1",
     "tsickle": "^0.35.0",
     "tslint": "~5.12.1",
