@@ -23,7 +23,6 @@ import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, AsyncSubject, Observable, Subject } from 'rxjs';
 import { Product } from './product';
-import { Cart } from './cart';
 
 @Injectable()
 export class PaymentsService {
@@ -33,8 +32,6 @@ export class PaymentsService {
     activeProducts = new AsyncSubject<any>();
     stripePubkey   = new AsyncSubject<string>();
     currency       = new AsyncSubject<string>();
-
-    cart: Cart = new Cart();
 
     constructor(
         private rmmapi: RunboxWebmailAPI,
