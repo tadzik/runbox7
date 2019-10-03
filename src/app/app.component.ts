@@ -19,9 +19,8 @@
 
 import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import {
-  CanvasTableSelectListener, AnimationFrameThrottler, CanvasTableComponent,
-  CanvasTableContainerComponent,
-  CanvasTableColumn
+  CanvasTableSelectListener, CanvasTableComponent,
+  CanvasTableContainerComponent
 } from './canvastable/canvastable';
 import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
 import { SearchService } from './xapian/searchservice';
@@ -31,19 +30,17 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
-import { MessageTableRow, MessageTableRowTool } from './messagetable/messagetablerow';
 import { MessageListService } from './rmmapi/messagelist.service';
 import { MessageInfo } from './xapian/messageinfo';
-import { InfoDialog, InfoParams } from './dialog/info.dialog';
-import { RunboxMe, RunboxWebmailAPI } from './rmmapi/rbwebmail';
+import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent } from './folder/folder.module';
-import { SimpleInputDialog, SimpleInputDialogParams, ProgressDialog } from './dialog/dialog.module';
-import { map, first, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
+import { ProgressDialog } from './dialog/dialog.module';
+import { map, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailRow } from './websocketsearch/websocketsearchmailrow.class';
@@ -147,7 +144,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private ngZone: NgZone,
     public logoutservice: LogoutService,
     public websocketsearchservice: WebSocketSearchService,
-    private draftDeskService: DraftDeskService,
+    draftDeskService: DraftDeskService,
     public messagelistservice: MessageListService,
     changeDetectorRef: ChangeDetectorRef,
     media: MediaMatcher,
@@ -759,7 +756,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }, 0);
   }
 
-  convertFolderPath(str) {
+  convertFolderPath(str: string) {
     return '/' + str.replace(/\./g, '/');
   }
 
@@ -929,4 +926,3 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     ).subscribe();
   }
 }
-
