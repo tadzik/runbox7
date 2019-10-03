@@ -32,10 +32,12 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
+import { NoEmailComponent } from './no-email.component';
 import { SingleMailViewerComponent, ShowHTMLDialogComponent } from './singlemailviewer.component';
 import { ResizerModule } from '../directives/resizer.module';
 import { ContactCardComponent } from './contactcard.component';
 export { SingleMailViewerComponent } from './singlemailviewer.component';
+export { NoEmailComponent } from './no-email.component';
 
 @NgModule({
     imports: [
@@ -56,10 +58,12 @@ export { SingleMailViewerComponent } from './singlemailviewer.component';
         MatExpansionModule
     ],
     exports: [
+        NoEmailComponent,
         SingleMailViewerComponent
     ],
     declarations: [
         ContactCardComponent,
+        NoEmailComponent,
         SingleMailViewerComponent,
         ShowHTMLDialogComponent
     ],

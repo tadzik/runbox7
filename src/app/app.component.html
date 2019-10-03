@@ -70,20 +70,13 @@
 
     <p style="text-align: center; font-size: 12px">Runbox 7 build time: {{buildtimestampstring}}</p>
   </mat-sidenav>
-  <mat-sidenav *ngIf="mailViewerOnRightSide" position="end" mode="side" 
+  <mat-sidenav *ngIf="layout.isHorizontal" position="end" mode="side" 
     [opened]=true
     [style.width]="mailViewerRightSideWidth"
     id="rightPane"
-    appResizable>
-      <single-mail-viewer #singlemailviewer 
-      [messageActionsHandler]="messageActionsHandler"
-      [adjustableHeight]="false"
-      (orientationChangeRequest)="mailViewerOrientationChangeRequest($event)"
-      (onClose)="singleMailViewerClosed($event)"></single-mail-viewer>
-      <div *ngIf="mailViewerOnRightSide && !singlemailviewer.messageId"
-	   class="noMessageSelectedNotification">
-	No Message Selected
-      </div>
+    appResizable
+  >
+      <router-outlet></router-outlet>
   </mat-sidenav>
   <div style="overflow: hidden; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%">
     <mat-toolbar style="display: flex">
@@ -91,7 +84,7 @@
 	      <mat-icon>menu</mat-icon>
       </button>
 
-      <ng-container *ngIf="!hasChildRouterOutlet">
+      <ng-container *ngIf="!isComposing">
         <app-multiple-search-fields-input
           *ngIf="showMultipleSearchFields && searchService.downloadProgress===null"
           [currentFolder]="selectedFolder" 
@@ -192,24 +185,15 @@
       *ngIf="searchService.partitionDownloadProgress!==null && searchService.partitionDownloadProgress!==1" 
       [value]="searchService.partitionDownloadProgress*100">
     </mat-progress-bar>
-  
-    <div [hidden]="hasChildRouterOutlet">
-      <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': !mailViewerOnRightSide ? singlemailviewer.height: 0}">
-        <canvastablecontainer [canvastableselectlistener]="this" (sortToggled)="updateSearch(true)"></canvastablecontainer>
-      </div>
-
-      <single-mail-viewer #singlemailviewer *ngIf="!mailViewerOnRightSide" 
-          [adjustableHeight]="true"
-          [showVerticalSplitButton]="allowMailViewerOrientationChange"
-          [messageActionsHandler]="messageActionsHandler"
-          (orientationChangeRequest)="mailViewerOrientationChangeRequest($event)"
-          (onClose)="singleMailViewerClosed($event)"></single-mail-viewer>
+  </div>
+  <div [hidden]="isComposing">
+    <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': !layout.isHorizontal ? layout.mailviewer.height: 0}">
+      <canvastablecontainer [canvastableselectlistener]="this" (sortToggled)="updateSearch(true)"></canvastablecontainer>
     </div>
   </div>
-  <router-outlet (activate)="hasChildRouterOutlet=true" (deactivate)="hasChildRouterOutlet=false"></router-outlet>
 </mat-sidenav-container>
 
-<div class="contextToolButtons" *ngIf="!hasChildRouterOutlet && showSelectOperations && !singlemailviewer.messageId">
+<div class="contextToolButtons" *ngIf="!isComposing && showSelectOperations && !selectedMessage">
   <button mat-fab matTooltip="Move&nbsp;to&nbsp;folder" (click)="moveToFolder()">
     <mat-icon>folder</mat-icon>
   </button>

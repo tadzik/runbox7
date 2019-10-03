@@ -1,5 +1,5 @@
-<div *ngIf="messageId" [ngClass]="{'adjustableHeight': adjustableHeight}"
-  appHorizResizable [resizableDisabled]="!adjustableHeight" (resized)="heightChanged($event)">
+<div *ngIf="messageId" [ngClass]="{'adjustableHeight': !layout.isHorizontal}"
+  appHorizResizable [resizableDisabled]="layout.isHorizontal" (resized)="heightChanged($event)">
   <iframe #printFrame
     sandbox="allow-same-origin allow-modals"
     style="width: 0px; height: 0px; border: none; position: absolute" 
@@ -140,24 +140,24 @@
     <button mat-icon-button matTooltip="Print" (click)="print()" id="buttonPrint">
       <mat-icon>print</mat-icon>    
     </button>    
-    <button mat-icon-button matTooltip="Horizontal preview" *ngIf="!adjustableHeight"
-      (click)="changeOrientation('horizontal')">
+    <button mat-icon-button matTooltip="Horizontal preview" *ngIf="!layout.isHorizontal"
+      (click)="layout.setHorizontal(true)">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="mat-icon" viewBox="0 0 24 24">
         <path fill="none" d="M0 0h24v24H0V0z"/>
         <path d="M3 19h18v-6H3v6zm0-8h18V9H3v2zm0-6v2h18V5H3z"/>
       </svg>
     </button>
-    <button mat-icon-button matTooltip="Vertical preview" *ngIf="adjustableHeight && showVerticalSplitButton" 
-      (click)="changeOrientation('vertical')">
+    <button mat-icon-button matTooltip="Vertical preview" *ngIf="layout.isHorizontal" 
+      (click)="layout.setHorizontal(false)">
       <svg xmlns="http://www.w3.org/2000/svg" class="mat-icon" width="24" height="24" viewBox="0 0 24 24">
         <path fill="none" d="M0 0h24v24H0V0z"/>
         <path d="M3 15h8v-2H3v2zm0 4h8v-2H3v2zm0-8h8V9H3v2zm0-6v2h8V5H3zm10 0h8v14h-8V5z"/>
       </svg>
     </button>
-    <button mat-icon-button *ngIf="adjustableHeight && resizer?.isFullHeight===false" (click)="resizer.resizePercentage(100)" matTooltip="Full height">
+    <button mat-icon-button *ngIf="!layout.isHorizontal && resizer?.isFullHeight===false" (click)="resizer.resizePercentage(100)" matTooltip="Full height">
       <mat-icon class="messageHeightIcon">arrow_drop_up</mat-icon>
     </button>
-    <button mat-icon-button *ngIf="adjustableHeight && resizer?.isFullHeight===true" (click)="resizer.resizePercentage(50)" matTooltip="Half height">
+    <button mat-icon-button *ngIf="!layout.isHorizontal && resizer?.isFullHeight===true" (click)="resizer.resizePercentage(50)" matTooltip="Half height">
       <mat-icon class="messageHeightIcon">arrow_drop_down</mat-icon>
     </button>
     

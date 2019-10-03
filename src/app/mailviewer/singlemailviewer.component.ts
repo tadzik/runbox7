@@ -34,7 +34,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MessageActions } from './messageactions';
 import { ProgressDialog } from '../dialog/progress.dialog';
 import { ProgressService } from '../http/progress.service';
-
+import { WebmailLayoutService } from '../webmail-layout.service';
 
 import { SafeUrl } from '@angular/platform-browser';
 import { HorizResizerDirective } from '../directives/horizresizer.directive';
@@ -85,11 +85,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   // tslint:disable-next-line:no-output-on-prefix
   @Output() onClose: EventEmitter<string> = new EventEmitter();
   @Output() afterViewInit: EventEmitter<any> = new EventEmitter();
-  @Output() orientationChangeRequest: EventEmitter<string> = new EventEmitter();
 
-  @Input() messageActionsHandler: MessageActions;
-  @Input() adjustableHeight: boolean;
-  @Input() showVerticalSplitButton = false;
+  //@Input() -- TODO share MessageActions in some other way
+  messageActionsHandler: MessageActions;
 
   @ViewChild('printFrame',             { static: false }) printFrame:             ElementRef;
   @ViewChild('messageContents',        { static: false }) messageContents:        ElementRef;
@@ -129,6 +127,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     private domSanitizer: DomSanitizer,
     private http: HttpClient,
     public dialog: MatDialog,
+    public layout: WebmailLayoutService,
     private rbwebmailapi: RunboxWebmailAPI,
     private progressService: ProgressService,
     public messagelistservice: MessageListService,
@@ -138,6 +137,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     // Mobile media query for screen width
 
     this.mobileQuery = media.matchMedia('(max-width: 1023px)');
+    layout.mailviewer = this;
   }
 
   public close(actionstring?: string) {
@@ -163,12 +163,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       this.onClose.emit(actionstring);
     }
 
-  }
-
-  public shouldPreviewSmallVersion(): boolean {
-    // Only preview small version of messages if more than  30kb
-    // return this.expectedMessageSize>30*1024;
-    return false; // Always download full message
   }
 
   public get messageId() {
@@ -197,9 +191,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       ) - 2;
       this.attachmentAreaCols = Math.floor(toolbarwidth / 200) + 1;
     }
-  }
-  public changeOrientation(orientation: string) {
-    this.orientationChangeRequest.emit(orientation);
   }
 
   attachmentIconFromContentType(contentType: string) {

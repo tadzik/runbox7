@@ -24,6 +24,7 @@ import {
 } from './canvastable/canvastable';
 import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
 import { SearchService } from './xapian/searchservice';
+import { WebmailLayoutService } from './webmail-layout.service';
 
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -56,9 +57,6 @@ import { ProgressService } from './http/progress.service';
 import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
 
-const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
-const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
-
 @Component({
   moduleId: 'angular2/app/',
   // tslint:disable-next-line:component-selector
@@ -84,6 +82,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   entireHistoryInProgress = false;
 
+  selectedMessage: number;
   selectedFolder = 'Inbox';
 
   timeOfDay: string;
@@ -99,19 +98,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   showingWebSocketSearchResults = false;
   displayFolderColumn = false;
 
-  mailViewerOnRightSide = true;
   mailViewerRightSideWidth = '40%';
-  allowMailViewerOrientationChange = true;
 
   buildtimestampstring = BUILD_TIMESTAMP;
-
-  @ViewChild(SingleMailViewerComponent, { static: false }) singlemailviewer: SingleMailViewerComponent;
 
   @ViewChild(FolderListComponent, { static: false }) folderListComponent: FolderListComponent;
   @ViewChild(CanvasTableContainerComponent, { static: true }) canvastablecontainer: CanvasTableContainerComponent;
   @ViewChild(MatSidenav, { static: false }) sidemenu: MatSidenav;
 
-  hasChildRouterOutlet: boolean;
+  isComposing = false;
   canvastable: CanvasTableComponent;
 
   savedColumnWidths: Array<number> = [];
@@ -143,6 +138,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private renderer: Renderer2,
     private ngZone: NgZone,
     public logoutservice: LogoutService,
+    public layout: WebmailLayoutService,
     public websocketsearchservice: WebSocketSearchService,
     draftDeskService: DraftDeskService,
     public messagelistservice: MessageListService,
@@ -164,7 +160,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.messageActionsHandler.snackBar = snackBar;
 
     this.renderer.listen(window, 'keydown', (evt: KeyboardEvent) => {
-      if (Object.keys(this.selectedRowIds).length === 1 && this.singlemailviewer.messageId) {
+      if (Object.keys(this.selectedRowIds).length === 1 && this.selectedMessage) {
         if (evt.code === 'ArrowUp') {
           const newRowIndex = this.lastSelectedRowIndex - 1;
           if (newRowIndex >= 0) {
@@ -207,9 +203,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       changeDetectorRef.detectChanges();
       if (!this.mobileQuery.matches && !this.sidemenu.opened) {
         this.sidemenu.open();
-        const storedMailViewerOrientationSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
-        this.mailViewerOnRightSide = !storedMailViewerOrientationSetting || storedMailViewerOrientationSetting === 'true';
-        this.allowMailViewerOrientationChange = true;
         this.mailViewerRightSideWidth = '35%';
       } else if (this.mobileQuery.matches && this.sidemenu.opened) {
         this.sidemenu.close();
@@ -218,8 +211,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       if (this.mobileQuery.matches) {
         // #935 - Allow vertical preview also on mobile, and use full width
         this.mailViewerRightSideWidth = '100%';
-        this.mailViewerOnRightSide = localStorage
-              .getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE) === `${true}`;
       }
     };
 
@@ -552,16 +543,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
       if (!multiSelect && columnIndex > 1) {
         if (this.showingSearchResults) {
-          this.singlemailviewer.expectedMessageSize = this.searchService.api.getNumericValue(this.selectedRowId, 3);
-          this.singlemailviewer.messageId = this.searchService.getMessageIdFromDocId(this.selectedRowId);
+          this.selectMessage(this.searchService.getMessageIdFromDocId(this.selectedRowId));
         } else if (this.showingWebSocketSearchResults) {
           const msg = (rowContent as WebSocketSearchMailRow);
-          this.singlemailviewer.messageId = msg.id;
-          this.singlemailviewer.expectedMessageSize = msg.size;
+          this.selectMessage(msg.id);
         } else {
           const msg: MessageInfo = rowContent;
-          this.singlemailviewer.messageId = msg.id;
-          this.singlemailviewer.expectedMessageSize = msg.size;
+          this.selectMessage(msg.id);
         }
 
         if (!this.mobileQuery.matches && !localStorage.getItem('messageSubjectDragTipShown')) {
@@ -582,8 +570,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         }
       }
     }
-
   }
+
+  selectMessage(id: number): void {
+    this.selectedMessage = id;
+    console.log("Selecting message", id);
+    this.router.navigate(['/msg'], { queryParams: { id: id } });
+  };
 
   updateTime() {
     const time = new Date();
@@ -636,6 +629,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
   }
 
+  // TODO use this somehow
   singleMailViewerClosed(action: string): void {
     this.clearSelection();
   }
@@ -724,7 +718,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         doResetColumns = true;
       }
     }
-    this.singlemailviewer.close();
     this.selectedFolder = folder;
 
     this.messagelistservice.messagesInViewSubject
@@ -743,7 +736,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       doResetColumns = true;
     }
 
-    if (this.hasChildRouterOutlet) {
+    if (this.isComposing) {
       this.router.navigate(['/']);
     }
 
@@ -861,22 +854,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
       }
     }
-  }
-
-  mailViewerOrientationChangeRequest(orientation: string) {
-    const currentMessageId = this.singlemailviewer.messageId;
-    if (orientation === 'vertical') {
-      this.mailViewerOnRightSide = true;
-    } else {
-      this.mailViewerOnRightSide = false;
-    }
-    if (this.mobileQuery.matches) {
-      localStorage.setItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE,
-          `${this.mailViewerOnRightSide}`);
-    }
-    localStorage.setItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE, this.mailViewerOnRightSide ? 'true' : 'false');
-    // Reopen message on orientation change
-    setTimeout(() => this.singlemailviewer.messageId = currentMessageId, 0);
   }
 
   horizScroll(evt: any) {

@@ -27,9 +27,12 @@ import { MenuModule } from './menu/menu.module';
 import { LoginComponent } from './login/login.component';
 
 import { MailViewerModule } from './mailviewer/mailviewer.module';
+import { NoEmailComponent } from './mailviewer/no-email.component';
+import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
 import { WebSocketSearchModule } from './websocketsearch/websocketsearch.module';
 import { RMMHttpInterceptorService } from './rmmapi/rmmhttpinterceptor.service';
 import { StorageService } from './storage.service';
+import { WebmailLayoutService } from './webmail-layout.service';
 import { RouterModule, Routes } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -51,12 +54,10 @@ import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { ComposeModule } from './compose/compose.module';
 import { ContactsAppModule } from './contacts-app/contacts-app.module';
-import { ContactsAppComponent } from './contacts-app/contacts-app.component';
 import { CalendarAppModule } from './calendar-app/calendar-app.module';
 import { CalendarAppComponent } from './calendar-app/calendar-app.component';
 import { DraftDeskComponent } from './compose/draftdesk.component';
 import { AccountAppModule } from './account-app/account-app.module';
-import { AccountAppComponent } from './account-app/account-app.component';
 import { ProgressService } from './http/progress.service';
 import { MessageListService } from './rmmapi/messagelist.service';
 import { DialogModule } from './dialog/dialog.module';
@@ -98,9 +99,17 @@ const routes: Routes = [
         component: AppComponent,
         children: [
           {
+            path: '',
+            component: NoEmailComponent
+          },
+          {
+            path: 'msg',
+            component: SingleMailViewerComponent
+          },
+          {
             path: 'compose',
             component: DraftDeskComponent
-          }
+          },
         ]
       }
     ]
@@ -156,6 +165,7 @@ const routes: Routes = [
     RunboxWebmailAPI,
     RMMAuthGuardService,
     StorageService,
+    WebmailLayoutService,
     { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true}
   ],
   bootstrap: [MainContainerComponent],
