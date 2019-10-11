@@ -33,14 +33,7 @@ import { RRule } from 'rrule';
     templateUrl: 'event-editor-dialog.component.html',
 })
 export class EventEditorDialogComponent {
-    event = new RunboxCalendarEvent({
-        title: '',
-        dtstart: moment(),
-        dtend: moment(),
-        allDay: false,
-        color: {},
-        vevent: {},
-    });
+    event = RunboxCalendarEvent.newEmpty()
     calendars: RunboxCalendar[];
     calendarFC = new FormControl('', Validators.required);
 
@@ -102,17 +95,17 @@ export class EventEditorDialogComponent {
         } else {
             this.event.calendar = this.calendarFC.value;
         }
-        this.event.dtstart = moment(this.event.start).seconds(0).milliseconds(0);
-        this.event.dtend = moment(this.event.end).seconds(0).milliseconds(0);
+        //this.event.dtstart = moment(this.event.start).seconds(0).milliseconds(0);
+        //this.event.dtend = moment(this.event.end).seconds(0).milliseconds(0);
 
         // For a user it makes sense that a 2-day-long event starts on 1st and ends on 2nd.
         // For iCalendar however, that's a 1-day event since end dates are non-inclusive.
         //
         // Since the user is the sane one here, let's just make all allDay events one day
         // longer behind the scenes (that's how nextcloud does it too, for example).
-        if (this.event.allDay) {
-            this.event.dtend.add(1, 'day');
-        }
+        //if (this.event.allDay) {
+        //    this.event.dtend.add(1, 'day');
+        //}
 
         this.event.refreshDates();
         this.event.setRecurringFrequency(this.recurring_frequency);
