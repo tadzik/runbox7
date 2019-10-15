@@ -104,9 +104,16 @@ export class StripePaymentDialogComponent implements AfterViewInit {
             paymentRequest: paymentRequest,
         });
         paymentRequest.canMakePayment().then(result => {
+            console.log("PAYMENT REQUEST RESULT:", result);
             if (result) {
                 prButton.mount(this.paymentRequestButton.nativeElement);
                 this.paymentRequestsSupported = true;
+                paymentRequest.on('paymentmethod', (ev: any) => {
+                    this.handlePaymentMethod(ev.paymentMethod).then(
+                        () => { ev.complete('success') },
+                        () => { ev.complete('fail')    },
+                    );
+                });
             }
         });
 
@@ -144,39 +151,57 @@ export class StripePaymentDialogComponent implements AfterViewInit {
                 this.state = 'initial';
             } else {
                 console.log(result);
-                this.paymentsservice.submitStripePayment(this.tid, result.paymentMethod.id).subscribe(res => {
-                    if (res.status === 'requires_source_action') {
-                        const client_secret = res.client_secret;
-                        this.stripe.handleCardAction(client_secret).then(actionRes => {
-                            if (actionRes.error) {
-                                this.state = 'failure';
-                                this.stripeError = actionRes.error.message;
-                            } else {
-                                console.log(actionRes.paymentIntent);
-                                this.confirmPayment(actionRes.paymentIntent.id);
-                            }
-                        });
-                    } else if (res.status === 'succeeded') {
-                        this.state = 'finished';
-                    } else {
-                        this.unhandled_status(res.status);
-                    }
-                }, error => this.fail(error)
-                );
+                this.handlePaymentMethod(result.paymentMethod);
             }
         });
     }
 
-    confirmPayment(paymentIntentId: string) {
-        this.paymentsservice.confirmStripePayment(paymentIntentId).subscribe(
-            pi => {
-                if (pi.status === 'succeeded') {
+    handlePaymentMethod(paymentMethod: any) {
+        return new Promise<void>((resolve, reject) => {
+            this.paymentsservice.submitStripePayment(this.tid, paymentMethod.id).subscribe(res => {
+                if (res.status === 'requires_source_action') {
+                    const client_secret = res.client_secret;
+                    this.stripe.handleCardAction(client_secret).then(actionRes => {
+                        if (actionRes.error) {
+                            this.state = 'failure';
+                            this.stripeError = actionRes.error.message;
+                            reject();
+                        } else {
+                            console.log(actionRes.paymentIntent);
+                            this.confirmPayment(actionRes.paymentIntent.id).then(resolve, reject);
+                        }
+                    });
+                } else if (res.status === 'succeeded') {
                     this.state = 'finished';
+                    resolve();
                 } else {
-                    this.unhandled_status(pi.status);
+                    this.unhandled_status(res.status);
+                    reject();
                 }
-            }, error => this.fail(error)
-        );
+            }, error => {
+                this.fail(error)
+                reject();
+            });
+        });
+    }
+
+    confirmPayment(paymentIntentId: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.paymentsservice.confirmStripePayment(paymentIntentId).subscribe(
+                pi => {
+                    if (pi.status === 'succeeded') {
+                        this.state = 'finished';
+                        resolve();
+                    } else {
+                        this.unhandled_status(pi.status);
+                        reject();
+                    }
+                }, error => {
+                    this.fail(error)
+                    reject();
+                }
+            );
+        });
     }
 
     fail(error: any) {
