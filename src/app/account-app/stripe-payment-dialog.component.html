@@ -28,6 +28,12 @@
 }
 </style>
 
+<ng-template #legacyFallback>
+    <p> Payment form not loading? Some browser extensions may be blocking it. </p>
+
+    <a mat-button href="/payment/payment?tid={{tid}}&method=stripe" target="_blank"> Try our legacy payment system instead </a>
+</ng-template>
+
 <div mat-dialog-content style="width: 500px; height: 250px;">
     <div [style.display]="state === 'initial' ? 'block' : 'none'">
         <div id="payment-button-row" class="payment-row" [style.display]="paymentRequestsSupported ? 'block' : 'none'">
@@ -79,6 +85,8 @@
     <div [style.display]="state === 'finished' ? 'block' : 'none'">
         <div> Your payment was successful and your products have been activated. </div>
     </div>
+
+    <ng-container *ngTemplateOutlet="legacyFallback"></ng-container>
 </div>
 
 <div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'loading'">
