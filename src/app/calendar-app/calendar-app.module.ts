@@ -7,7 +7,7 @@
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
@@ -21,6 +21,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MenuModule } from '../menu/menu.module';
+import { HintModule } from '../hint/hint.module';
 
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
@@ -66,6 +67,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   imports: [
     CommonModule,
     FormsModule,
+    HintModule,
     MenuModule,
     MatButtonModule,
     MatCardModule,

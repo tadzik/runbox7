@@ -2,6 +2,7 @@
 @import '../iconfont/material-icons.css';
 @import "../node_modules/angular-calendar/css/angular-calendar.css";
 @import "~ng-pick-datetime/assets/style/picker.min.css";
+@import '~tippy.js/themes/material.css';
 
 // Include non-theme styles for core.
 @include mat-core();
@@ -960,4 +961,20 @@ app-calendar-event-editor-dialog p {
 
 .productCardSpecial .mat-card, .productCardSpecial mat-card {
         background: mat-color($rmm-default-accent);
+}
+
+/* Hints */
+
+.hintElementPointer {
+    box-shadow: 0px 0px 5px 2px mat-color($rmm-default-primary);
+}
+
+.hintTooltip {
+    position: absolute;
+    z-index:  10;
+    padding:  3px;
+
+    color: rgba(0, 0, 0, 0.87);
+    background-color: mat-color($rmm-default-accent);
+    box-shadow: 0px 0px 5px 2px mat-color($rmm-default-primary);
 }

@@ -1,4 +1,10 @@
 <mat-sidenav-container autosize>
+  <app-hint>
+      <div target>
+          Synchronize your index for shits and giggles
+      </div>
+  </app-hint>
+
   <mat-sidenav #sidemenu [mode]="mobileQuery.matches ? 'over' : 'side'"
       [fixedInViewport]="mobileQuery.matches"
       fixedTopGap="0"
@@ -49,7 +55,7 @@
     </mat-nav-list>
 
     <mat-nav-list *ngIf="(xapianLoaded | async) && !dataReady && searchService.downloadProgress===null">
-      <mat-list-item (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device">
+      <mat-list-item id="syncIndexButton" (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device">
         <mat-icon mat-list-icon>sync</mat-icon>
         <p mat-line>Synchronize index</p>
       </mat-list-item>

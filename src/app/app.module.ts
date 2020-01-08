@@ -23,6 +23,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HttpClientJsonpModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
+import { HintModule } from './hint/hint.module';
 import { MenuModule } from './menu/menu.module';
 import { LoginComponent } from './login/login.component';
 
@@ -114,6 +115,7 @@ const routes: Routes = [
     CanvasTableModule,
     ComposeModule,
     FolderModule,
+    HintModule,
     MatSnackBarModule,
     MatIconModule,
     MatDialogModule,
