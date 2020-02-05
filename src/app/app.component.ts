@@ -62,6 +62,12 @@ import {Hotkey, HotkeysService} from 'angular2-hotkeys';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
 
+import * as Sentry from "@sentry/browser";
+
+Sentry.init({
+      dsn: "http://3f8adf8c7b2b4af7a4af527812231eac@localhost:9000/2"
+});
+
 @Component({
   moduleId: 'angular2/app/',
   // tslint:disable-next-line:component-selector
