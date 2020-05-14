@@ -99,6 +99,11 @@
                     &nbsp;&nbsp;&nbsp;
                 </mat-checkbox>
 
+                <span *ngIf="showDragHandles"
+                    draggable="true" (dragstart)="dragStarted($event, contact.id)">
+                    <mat-icon> drag_handle </mat-icon>
+                </span>
+
                 <a routerLink="/contacts/{{ contact.id }}" matTooltip="View details">
                     <h4 mat-line>
                         <app-contact-button [contact]="contact"></app-contact-button>

@@ -37,6 +37,7 @@ export class ContactDetailsComponent {
 
     @Output() contactSaved = new EventEmitter<Contact>();
     @Output() contactDeleted = new EventEmitter<Contact>();
+    @Output() requestDragHandles = new EventEmitter<void>();
 
     contactForm = this.createForm();
 
@@ -54,8 +55,9 @@ export class ContactDetailsComponent {
     @ViewChild('newCategoryInput') newCategoryElement: ElementRef;
     contactIcon: string;
 
-    contactIsDragged = false;
-    memberIsDragged  = false;
+    contactIsDragged   = false;
+    memberIsDragged    = false;
+    suggestDragHandles = false;
 
     constructor(
         public dialog: MatDialog,
@@ -82,6 +84,9 @@ export class ContactDetailsComponent {
 
         document.addEventListener('dragstart', (ev) => this.contactIsDragged = !!ev.dataTransfer.getData('contact'));
         document.addEventListener('dragend',   ()   => this.contactIsDragged = this.memberIsDragged = false);
+
+        // TODO move this to some ContactSettings service
+        this.suggestDragHandles = !localStorage.getItem('contactsShowDragHandles');
     }
 
     private contactDiffersFrom(other: Contact): boolean {

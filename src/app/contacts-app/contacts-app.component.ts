@@ -47,6 +47,8 @@ export class ContactsAppComponent {
     selectedCount = 0;
     selectedIDs = {};
 
+    showDragHandles = false;
+
     categories  = [];
     categoryFilter = 'RUNBOX:ALL';
     searchTerm  = '';
@@ -107,6 +109,8 @@ export class ContactsAppComponent {
                 }
             }
         });
+
+        this.showDragHandles = !!localStorage.getItem('contactsShowDragHandles');
     }
 
     deleteSelected(): void {
