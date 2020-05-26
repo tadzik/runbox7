@@ -42,6 +42,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class ContactsAppComponent {
     title = 'Contacts';
     contacts: Contact[] = [];
+    groups: Contact[] = [];
     shownContacts: Contact[] = [];
     selectedContact: Contact;
     sortMethod = 'lastname+';
@@ -52,8 +53,9 @@ export class ContactsAppComponent {
 
     categories  = [];
     categoryFilter = 'RUNBOX:ALL';
-    hasGroups = false;
     searchTerm  = '';
+
+    appLayout = 'twoColumns';
 
     sideMenuOpened = true;
     @ViewChild(MatSidenav) sideMenu: MatSidenav;
@@ -72,7 +74,11 @@ export class ContactsAppComponent {
         this.contactsservice.contactsSubject.subscribe(contacts => {
             console.log('Contacts.app: got the contacts!');
             this.contacts = contacts;
-            this.hasGroups = !!this.contacts.find(c => c.kind === ContactKind.GROUP);
+            this.groups = this.contacts.filter(
+                c => c.kind === ContactKind.GROUP
+            ).sort(
+                (a, b) => a.full_name.localeCompare(b.full_name)
+            );
             this.filterContacts();
         });
 
@@ -149,6 +155,10 @@ export class ContactsAppComponent {
 
     filterContacts(): void {
         this.shownContacts = this.contacts.filter(c => {
+            if (c.kind === ContactKind.GROUP) {
+                return false;
+            }
+
             if (this.categoryFilter === 'RUNBOX:ALL') {
                 return true;
             }
@@ -281,24 +291,6 @@ export class ContactsAppComponent {
         this.shownContacts.sort((a, b) => {
             let firstname_order: number;
             let lastname_order: number;
-
-            // Show groups first.
-            // Once we get a separate UI elements for them it won't be necessary,
-            // but before that's in this will still improve things.
-            if (a.kind !== b.kind) {
-                if (a.kind === ContactKind.GROUP) {
-                    return -1;
-                }
-                if (b.kind === ContactKind.GROUP) {
-                    return 1;
-                }
-
-                // if they're different kinds but neither is a group
-                // then we'll sort them as regular contacts below
-            } else if (a.kind === ContactKind.GROUP) {
-                // they're both groups, so they don't have first and last names anyway
-                return a.full_name.localeCompare(b.full_name);
-            }
 
             // all this complexity is so that the null values are always treated
             // as last if they were alphabetically last
