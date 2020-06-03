@@ -25,18 +25,29 @@ import { ContactKind, Contact } from '../contacts-app/contact';
 import { isValidEmail } from './emailvalidator';
 import { MailAddressInfo } from '../xapian/messageinfo';
 import { Recipient } from './recipient';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Injectable()
 export class RecipientsService {
+    ownAddresses: ReplaySubject<Set<string>> = new ReplaySubject(1);
     recipients: ReplaySubject<Recipient[]> = new ReplaySubject();
+    popularRecipients: ReplaySubject<Recipient[]> = new ReplaySubject(1);
 
     constructor(
         searchService: SearchService,
-        private contactsService: ContactsService
+        private contactsService: ContactsService,
+        rmmapi: RunboxWebmailAPI,
     ) {
+        rmmapi.getFromAddress().subscribe(
+            froms => this.ownAddresses.next(new Set(froms.map(f => f.email)))
+        );
+
         searchService.initSubject.subscribe((hasSearchIndex: boolean) => {
+            const popularRecipients: { [email: string]: number } = {};
+            const namesOf: {[email: string]: Set<string>} = {};
 
             const recipientsMap: {[email: string]: Recipient} = {};
+
             if (hasSearchIndex) {
                 // Get all recipient terms from search index
                 window['termlistresult'] = [];
@@ -49,9 +60,40 @@ export class RecipientsService {
                     .map(recipient => MailAddressInfo.parse(recipient)[0])
                     .forEach(recipient => {
                         recipientsMap[recipient.address] = Recipient.fromSearchIndex(recipient.nameAndAddress);
+
+                        // add it to the "popularity contest" dataset
+                        const email = recipient.address;
+                        if (popularRecipients[email]) {
+                            popularRecipients[email]++;
+                        } else {
+                            popularRecipients[email] = 1;
+                        }
+                        if (namesOf[email]) {
+                            namesOf[email].add(recipient.name);
+                        } else {
+                            namesOf[email] = new Set([recipient.name]);
+                        }
                     });
 
+                this.ownAddresses.subscribe(own => {
+                    this.popularRecipients.next(
+                        Object.entries(
+                            popularRecipients
+                        ).filter(
+                            // not us, and used at least 3 times
+                            x => !own.has(x[0]) && x[1] > 2
+                        ).sort(
+                            (a, b) => b[1] - a[1]
+                        ).map(
+                            a => new Recipient([a[0]])
+                        )
+                    );
+                });
             }
+
+            this.popularRecipients.subscribe(pops => {
+                console.log("Popular recipients:", pops);
+            });
 
             contactsService.contactsSubject.subscribe(contacts => {
                 const categories = {};
