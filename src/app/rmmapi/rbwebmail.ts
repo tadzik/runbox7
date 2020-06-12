@@ -52,7 +52,7 @@ export class MessageFields {
     to: string;
 }
 
-export class FolderCountEntry {
+export class FolderListEntry {
     isExpandable?: boolean;
     priority?: number; // for sorting order
 
@@ -295,9 +295,10 @@ export class RunboxWebmailAPI {
             if (res.status === 'error') {
                 if (res.errors && res.errors.length) {
                     const error_msg = res.errors.map((key) => {
-                        return this.rblocale.translate(key);
+                        return this.rblocale.translate(key).replace('_', ' ');
                     }).join('. ');
-                    this.snackBar.open(error_msg, 'Dismiss');
+                    const error_formatted = error_msg.charAt(0).toUpperCase() + error_msg.slice(1);
+                    this.snackBar.open(error_formatted, 'Dismiss');
                 } else {
                     this.snackBar.open('There was an unknown error and this action cannot be completed.', 'Dismiss');
                 }
@@ -344,13 +345,13 @@ export class RunboxWebmailAPI {
         return req.pipe(map((res: any) => res.status === 'success'));
     }
 
-    getFolderCount(): Observable<Array<FolderCountEntry>> {
+    getFolderList(): Observable<Array<FolderListEntry>> {
         let folderLevel = 0;
         let depth = 0;
         const flattenFolders = folders => {
             folderLevel++;
             const flattenedFolders = folders.map(folder => {
-                const folderCountEntry = new FolderCountEntry(
+                const folderListEntry = new FolderListEntry(
                     parseInt(folder.id, 10),
                     folder.msg_new,
                     folder.total,
@@ -359,10 +360,10 @@ export class RunboxWebmailAPI {
                     folder.folder,
                     folderLevel - 1
                 );
-                folderCountEntry.priority = folder.priority;
+                folderListEntry.priority = folder.priority;
 
                 return folder.subfolders.length > 0 ?
-                    [folderCountEntry].concat(flattenFolders(folder.subfolders)) : folderCountEntry;
+                    [folderListEntry].concat(flattenFolders(folder.subfolders)) : folderListEntry;
 
             });
             if (folderLevel > depth) {
