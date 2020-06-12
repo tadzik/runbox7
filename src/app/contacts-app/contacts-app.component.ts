@@ -22,7 +22,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
+import { ActivatedRoute, NavigationStart, Router, NavigationEnd } from '@angular/router';
 
 import { Contact, ContactKind, GroupMember } from './contact';
 import { ContactsService } from './contacts.service';
@@ -46,6 +46,8 @@ export class ContactsAppComponent {
     shownContacts: Contact[] = [];
     selectedContact: Contact;
     sortMethod = 'lastname+';
+
+    shownGroup: Contact = null;
 
     selectingMultiple = false;
     selectedCount = 0;
@@ -116,6 +118,18 @@ export class ContactsAppComponent {
                 if (mobileQuery.matches) {
                     this.sideMenu.close();
                 }
+            } else if (event instanceof NavigationEnd) {
+                const url = router.parseUrl(router.url);
+                const uuid = url.root.children.primary.segments[1]?.path;
+                if (uuid) {
+                    const group = this.groups.find(g => g.id === uuid);
+                    if (group) {
+                        this.shownGroup = group;
+                    }
+                } else {
+                    this.shownGroup = null;
+                }
+                this.filterContacts();
             }
         });
     }
@@ -157,6 +171,12 @@ export class ContactsAppComponent {
         this.shownContacts = this.contacts.filter(c => {
             if (c.kind === ContactKind.GROUP) {
                 return false;
+            }
+
+            if (this.shownGroup) {
+                if (!this.shownGroup.members.find(gm => gm.uuid === c.id)) {
+                    return false;
+                }
             }
 
             if (this.categoryFilter === 'RUNBOX:ALL') {
@@ -341,6 +361,17 @@ export class ContactsAppComponent {
         }
     }
 
+    dropContactTo(group: Contact, ev: DragEvent) {
+        const id = ev.dataTransfer.getData('contact');
+        if (!id) {
+            return;
+        }
+        const target = this.contacts.find(c => c.id === id);
+        if (target) {
+            this.addContactsToGroup(group, [target]);
+        }
+    }
+
     private addContactsToGroup(group: Contact, members: Contact[]): void {
         const newMembers = members.filter(
             nm => !group.members.find(gm => gm.uuid === nm.id)
@@ -348,5 +379,4 @@ export class ContactsAppComponent {
         group.members = group.members.concat(newMembers);
         this.contactsservice.saveContact(group);
     }
-
 }
