@@ -46,6 +46,7 @@ import { FormArrayEditorComponent } from './contact-details/formarray-editor.com
 import { MultiValueEditorComponent } from './contact-details/multivalue-editor.component';
 import { ContactsService } from './contacts.service';
 import { GroupPickerDialogComponent } from './group-picker-dialog-component';
+import { EmailImportDialogComponent } from './email-import-dialog.component';
 import { VcfImportDialogComponent } from './vcf-import-dialog.component';
 
 @NgModule({
@@ -55,6 +56,7 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     ContactDetailsComponent,
     ContactsSettingsComponent,
     ContactsWelcomeComponent,
+    EmailImportDialogComponent,
     FormArrayEditorComponent,
     GroupPickerDialogComponent,
     MultiValueEditorComponent,
@@ -100,6 +102,7 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     ])
   ],
   entryComponents: [
+    EmailImportDialogComponent,
     VcfImportDialogComponent,
   ],
   providers: [

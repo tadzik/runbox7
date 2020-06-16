@@ -29,6 +29,7 @@ import { ContactsService } from './contacts.service';
 import { MobileQueryService } from '../mobile-query.service';
 import { GroupPickerDialogComponent } from './group-picker-dialog-component';
 import { VcfImportDialogComponent, VcfImportDialogResult } from './vcf-import-dialog.component';
+import { EmailImportDialogComponent, EmailImportDialogResult } from './email-import-dialog.component';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -82,13 +83,15 @@ export class ContactsAppComponent {
         });
 
         this.route.queryParams.subscribe(params => {
-            const vcfUrl = params.import_from;
-            if (!vcfUrl) { return; }
-            this.http.get(vcfUrl, { responseType: 'blob' }).subscribe(
-                res => (new Response(res)).text().then(
-                    text => this.processVcfImport(text)
-                )
-            );
+            if (params.import_from) {
+                this.http.get(params.import_from, { responseType: 'blob' }).subscribe(
+                    res => (new Response(res)).text().then(
+                        text => this.processVcfImport(text)
+                    )
+                );
+            } else if (params.import_email) {
+                this.processEmailImport(params.import_email, params.import_name);
+            }
             this.router.navigate(['/contacts'], { queryParams: {}, replaceUrl: true });
         });
 
@@ -191,6 +194,15 @@ export class ContactsAppComponent {
         };
 
         fr.readAsText(file);
+    }
+
+    processEmailImport(email: string, name: string) {
+        this.contactsservice.contactsSubject.subscribe(contacts => {
+            this.dialog.open(EmailImportDialogComponent, {
+                data: { contacts, email, name }
+            }).afterClosed().subscribe((result: EmailImportDialogResult) => {
+            });
+        });
     }
 
     processVcfImport(vcf: string) {

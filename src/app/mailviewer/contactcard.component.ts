@@ -60,8 +60,8 @@ export class ContactCardComponent implements OnInit {
             this.router.navigate(['/contacts/' + this.contactsEntry.id]);
         } else {
             this.router.navigate(
-                ['/contacts/new'],
-                { queryParams: { name: this.contact.name, email: this.contact.address } }
+                ['/contacts/' ],
+                { queryParams: { import_name: this.contact.name, import_email: this.contact.address } }
             );
         }
     }
