@@ -47,18 +47,19 @@
             <mat-divider></mat-divider>
 
             <mat-list-item>
-                <a routerLink="/contacts/" matTooltip="Show all groups">
-                    <h4 mat-line>
-                        <mat-icon> group </mat-icon> Show all groups
-                    </h4>
+                <a mat-button routerLink="/contacts/" matTooltip="Show all contacts">
+                    <mat-icon> group </mat-icon>
+                    <span [ngClass]="!shownGroup ? 'selectedGroupLabel' : ''">
+                        Show all contacts
+                    </span>
                 </a>
             </mat-list-item>
 
             <mat-list-item *ngFor="let group of groups" (drop)="dropContactTo(group, $event)">
-                <a routerLink="/contacts/{{ group.id }}" matTooltip="View details">
-                    <h4 mat-line>
+                <a mat-button routerLink="/contacts/{{ group.id }}" matTooltip="View details">
+                    <span [ngClass]="(shownGroup ? shownGroup.id : null) === group.id ? 'selectedGroupLabel' : ''">
                         <app-contact-button [contact]="group"></app-contact-button>
-                    </h4>
+                    </span>
                 </a>
             </mat-list-item>
         </mat-nav-list>
