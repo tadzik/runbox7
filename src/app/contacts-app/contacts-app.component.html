@@ -28,7 +28,7 @@
                 </button>
             </mat-list-item>
             <mat-list-item>
-                <button mat-button routerLink="/contacts/new_group">
+                <button mat-button routerLink="/contacts/new_group" (click)="shownGroup = null">
                     <mat-icon> group_add </mat-icon> New group
                 </button>
             </mat-list-item>
@@ -81,15 +81,23 @@
         </div>
     </mat-sidenav>
     <mat-sidenav-content>
-        <mat-toolbar style="display: flex">
+        <mat-toolbar *ngIf="mobileQuery.matches" style="display: flex; justify-content: space-between;">
             <button mat-icon-button (click)="sidemenu.toggle()">
                 <mat-icon>menu</mat-icon>
             </button>
 
-            FOR DEBUGGING:
-            <button (click)="appLayout = 'twoColumns'">  Two column layout </button>
-            <button (click)="appLayout = 'showList'">    Show list         </button>
-            <button (click)="appLayout = 'showDetails'"> Show details      </button>
+            <span *ngIf="!showingDetails">
+                <span *ngIf="shownGroup; else showingAll">
+                    Showing group <button mat-stroked-button (click)="showDetails(true)"> {{ shownGroup.display_name() }} </button>
+                </span>
+                <ng-template #showingAll>
+                    Showing all contacts
+                </ng-template>
+            </span>
+
+            <button mat-icon-button *ngIf="showingDetails" (click)="showDetails(false)">
+                <mat-icon> close </mat-icon>
+            </button>
         </mat-toolbar>
         <div [class]="appLayout">
             <div class="contactList">

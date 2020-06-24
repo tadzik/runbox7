@@ -28,6 +28,7 @@ import { ConfirmDialog } from '../../dialog/dialog.module';
 
 import { filter } from 'rxjs/operators';
 import { ContactsService } from '../contacts.service';
+import { MobileQueryService } from '../../mobile-query.service';
 
 @Component({
     selector: 'app-contact-details',
@@ -57,6 +58,7 @@ export class ContactDetailsComponent {
 
     constructor(
         public dialog: MatDialog,
+        public mobileQuery: MobileQueryService,
         public rmmapi: RunboxWebmailAPI,
         private fb: FormBuilder,
         private router: Router,

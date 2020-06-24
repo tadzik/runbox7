@@ -31,6 +31,7 @@ import { GroupPickerDialogComponent } from './group-picker-dialog-component';
 import { VcfImportDialogComponent, VcfImportDialogResult } from './vcf-import-dialog.component';
 
 import { v4 as uuidv4 } from 'uuid';
+import { take } from 'rxjs/operators';
 
 @Component({
     moduleId: 'angular2/app/contacts-app/',
@@ -48,6 +49,7 @@ export class ContactsAppComponent {
     sortMethod = 'lastname+';
 
     shownGroup: Contact = null;
+    showingDetails = false;
 
     selectingMultiple = false;
     selectedCount = 0;
@@ -111,6 +113,8 @@ export class ContactsAppComponent {
         this.sideMenuOpened = !mobileQuery.matches;
         this.mobileQuery.changed.subscribe(mobile => {
             this.sideMenuOpened = !mobile;
+
+            this.determineLayout();
         });
 
         router.events.subscribe(event => {
@@ -120,16 +124,23 @@ export class ContactsAppComponent {
                 }
             } else if (event instanceof NavigationEnd) {
                 const url = router.parseUrl(router.url);
-                const uuid = url.root.children.primary.segments[1]?.path;
-                if (uuid) {
-                    const group = this.groups.find(g => g.id === uuid);
-                    if (group) {
-                        this.shownGroup = group;
-                    }
+                const childPath = url.root.children.primary.segments[1]?.path;
+                if (childPath) {
+                    this.showingDetails = true;
+                    // we can't use this.groups, since at the point this fires they may not be loaded yet
+                    this.contactsservice.contactsSubject.pipe(take(1)).subscribe(contacts => {
+                        const group = contacts.filter(c => c.kind === ContactKind.GROUP).find(g => g.id === childPath);
+                        if (group) {
+                            this.shownGroup = group;
+                            this.showingDetails = false;
+                        }
+                    });
                 } else {
+                    this.showingDetails = false;
                     this.shownGroup = null;
                 }
                 this.filterContacts();
+                this.determineLayout();
             }
         });
     }
@@ -165,6 +176,18 @@ export class ContactsAppComponent {
             this.showNotification(`Deleted ${toDelete.length} contacts`);
             this.contactsservice.reload();
         });
+    }
+
+    determineLayout(): void {
+        if (!this.mobileQuery.matches) {
+            this.appLayout = 'twoColumns';
+        } else {
+            if (this.showingDetails) {
+                this.appLayout = 'showDetails';
+            } else {
+                this.appLayout = 'showList';
+            }
+        }
     }
 
     filterContacts(): void {
@@ -278,6 +301,11 @@ export class ContactsAppComponent {
             this.selectedIDs[c.id] = true;
         }
         this.onContactChecked();
+    }
+
+    showDetails(yes: boolean): void {
+        this.showingDetails = yes;
+        this.determineLayout();
     }
 
     showNotification(message: string, action = 'Dismiss'): void {
