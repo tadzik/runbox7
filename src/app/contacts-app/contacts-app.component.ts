@@ -45,19 +45,11 @@ export class ContactsAppComponent {
     contacts: Contact[] = [];
     groups: Contact[] = [];
     shownContacts: Contact[] = [];
-    selectedContact: Contact;
-    sortMethod = 'lastname+';
 
     shownGroup: Contact = null;
     showingDetails = false;
 
-    selectingMultiple = false;
-    selectedCount = 0;
-    selectedIDs = {};
-
     categories  = [];
-    categoryFilter = 'RUNBOX:ALL';
-    searchTerm  = '';
 
     appLayout = 'twoColumns';
 
@@ -146,6 +138,7 @@ export class ContactsAppComponent {
     }
 
     addSelectedToGroup(): void {
+        /*
         const toAdd = this.contacts.filter(c => this.selectedIDs[c.id]);
 
         if (toAdd.find(c => c.kind === ContactKind.GROUP)) {
@@ -164,6 +157,7 @@ export class ContactsAppComponent {
                 this.resetSelection();
             }
         });
+        */
     }
 
     closeDetails(): void {
@@ -176,6 +170,7 @@ export class ContactsAppComponent {
     }
 
     deleteSelected(): void {
+        /*
         const toDelete = this.contacts.filter(c => this.selectedIDs[c.id]);
         this.contacts = this.contacts.filter(c => !this.selectedIDs[c.id]);
         this.filterContacts();
@@ -185,6 +180,7 @@ export class ContactsAppComponent {
             this.showNotification(`Deleted ${toDelete.length} contacts`);
             this.contactsservice.reload();
         });
+        */
     }
 
     determineLayout(): void {
@@ -211,36 +207,12 @@ export class ContactsAppComponent {
                 }
             }
 
-            if (this.categoryFilter === 'RUNBOX:ALL') {
-                return true;
-            }
-            if (this.categoryFilter === 'RUNBOX:NONE' && c.categories.length === 0) {
-                return true;
-            }
-
-            const target = this.categoryFilter.substr(5); // strip 'USER:'
-
-            return c.categories.find(g => g === target);
-        }).filter(c => {
-            return c.display_name() && (c.display_name().toLowerCase().indexOf(this.searchTerm.toLowerCase()) !== -1);
+            return true;
         });
-        this.sortContacts();
     }
 
     importVcfClicked(): void {
         this.vcfUploadInput.nativeElement.click();
-    }
-
-    onContactChecked(): void {
-        this.selectedCount = Object.values(this.selectedIDs).filter(x => x).length;
-    }
-
-    onSelectMultipleChange(): void {
-        if (!this.selectingMultiple) {
-            // uncheck all contacts if we're switching this off to prevent confusing leftovers
-            this.selectedIDs = {};
-            this.selectedCount = 0;
-        }
     }
 
     onVcfUploaded(uploadEvent: any) {
@@ -300,18 +272,6 @@ export class ContactsAppComponent {
         });
     }
 
-    resetSelection(): void {
-        this.selectedIDs = {};
-        this.selectedCount = 0;
-    }
-
-    selectAll(): void {
-        for (const c of this.shownContacts) {
-            this.selectedIDs[c.id] = true;
-        }
-        this.onContactChecked();
-    }
-
     showDetails(yes: boolean): void {
         this.showingDetails = yes;
         this.determineLayout();
@@ -342,51 +302,6 @@ export class ContactsAppComponent {
                 duration: 5000,
             });
         }
-    }
-
-    sortContacts(): void {
-        this.shownContacts.sort((a, b) => {
-            let firstname_order: number;
-            let lastname_order: number;
-
-            // all this complexity is so that the null values are always treated
-            // as last if they were alphabetically last
-            if (a.first_name === b.first_name) {
-                firstname_order = 0;
-            } else if (!a.first_name) {
-                firstname_order = 1;
-            } else if (!b.first_name) {
-                firstname_order = -1;
-            } else {
-                firstname_order = a.first_name.localeCompare(b.first_name);
-            }
-
-            if (a.last_name === b.last_name) {
-                lastname_order = 0;
-            } else if (!a.last_name) {
-                lastname_order = 1;
-            } else if (!b.last_name) {
-                lastname_order = -1;
-            } else {
-                lastname_order = a.last_name.localeCompare(b.last_name);
-            }
-
-            if (this.sortMethod === 'lastname+') {
-                return lastname_order || firstname_order;
-            }
-
-            if (this.sortMethod === 'lastname-') {
-                return (1 - lastname_order) || (1 - firstname_order);
-            }
-
-            if (this.sortMethod === 'firstname+') {
-                return firstname_order || lastname_order;
-            }
-
-            if (this.sortMethod === 'firstname-') {
-                return (1 - firstname_order) || (1 - lastname_order);
-            }
-        });
     }
 
     dragStarted(ev: DragEvent, contact: Contact) {
