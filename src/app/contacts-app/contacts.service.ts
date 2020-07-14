@@ -26,6 +26,7 @@ import { Subject, ReplaySubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import * as moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
+import { Md5 } from 'ts-md5/dist/md5';
 
 export class Settings {
     get showDragHelpers(): boolean {
@@ -214,5 +215,10 @@ export class ContactsService implements OnDestroy {
                 resolve(null);
             });
         });
+    }
+
+    avatarUrl(email: string): string {
+        let hash = Md5.hashStr(email.toLowerCase());
+        return 'https://www.gravatar.com/avatar/' + hash + '?d=404';
     }
 }

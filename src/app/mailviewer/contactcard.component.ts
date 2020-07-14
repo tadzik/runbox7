@@ -29,6 +29,10 @@ import { ContactsService } from '../contacts-app/contacts.service';
     template: `
         <a [ngStyle]="style" (click)="clicked()"
            [matTooltip]="contactsEntry ? 'Show contact' : 'Add to contacts'">
+           <img
+             style="height: 16px; border-radius: 8px;"
+             [src]="contactsservice.avatarUrl(contact.address)" alt=""
+           >
             {{contact.name}} &lt;{{contact.address}}&gt;
             <mat-icon *ngIf="contactsEntry">  person     </mat-icon>
             <mat-icon *ngIf="!contactsEntry"> person_add </mat-icon>
