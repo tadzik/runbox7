@@ -130,6 +130,7 @@ const routes: Routes = [
       { path: 'contacts',           loadChildren: './contacts-app/contacts-app.module#ContactsAppModule' },
       { path: 'identities',         loadChildren: './profiles/profiles.module#ProfilesModule' },
       { path: 'account-security',   loadChildren: './account-security/account.security.module#AccountSecurityModule' },
+      { path: 'onscreen',           loadChildren: './onscreen/onscreen.module#OnscreenModule' },
     ]
   },
   { path: 'login', component: LoginComponent }
