@@ -1,0 +1,14 @@
+<h1> Filters </h1>
+
+<div *ngIf="filters | async as filters; else loading">
+    <app-account-filter-editor
+        *ngFor="let filter of filters"
+        [filter]="filter"
+    ></app-account-filter-editor>
+</div>
+
+<ng-template #loading>
+    <app-runbox-loading
+        text="Loading your filters..."
+    ></app-runbox-loading>
+</ng-template>
