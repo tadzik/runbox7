@@ -1,9 +1,17 @@
 <h1> Filters </h1>
 
 <div *ngIf="filters | async as filters; else loading">
+    <div style="margin: 10px">
+        <button mat-stroked-button (click)="newFilter()">
+            <mat-icon svgIcon="plus-box"></mat-icon> Add new filter
+        </button>
+    </div>
+
     <app-account-filter-editor
         *ngFor="let filter of filters"
         [filter]="filter"
+        (save)="saveFilter(filter, $event)"
+        (delete)="deleteFilter(filter)"
     ></app-account-filter-editor>
 </div>
 

@@ -18,22 +18,64 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
-import { Subject } from 'rxjs';
+import { ReplaySubject } from 'rxjs';
 
 import { Filter, RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
+import {take} from 'rxjs/operators';
 
 @Component({
     selector: 'app-account-filters-component',
     templateUrl: './account-filters.component.html',
 })
 export class AccountFiltersComponent {
-    filters: Subject<Filter[]> = new Subject();
+    filters: ReplaySubject<Filter[]> = new ReplaySubject(1);
 
     constructor(
         private rmmapi: RunboxWebmailAPI,
     ) {
         this.rmmapi.getFilters().subscribe(filters => {
             this.filters.next(filters);
+        });
+    }
+
+    newFilter(): void {
+        this.filters.pipe(take(1)).subscribe(filters => {
+            const template = {
+                id: null,
+                str: '',
+                action: 't',
+                active: true,
+                target: 'Inbox',
+                negated: false,
+                location: '0',
+                priority: 99,
+            };
+            this.filters.next([template, ...filters]);
+        });
+    }
+
+    deleteFilter(target: Filter): void {
+        if (target.id) {
+            console.log(`Deleting filter #${target.id}`);
+        }
+        this.filters.pipe(take(1)).subscribe(filters => {
+            this.filters.next(filters.filter(f => f !== target));
+        });
+    }
+
+    saveFilter(existing: Filter, replacement: Filter): void {
+        console.log(`Uploading filter to server ${JSON.stringify(replacement)}`);
+        // mocked response:
+        replacement.id = 31337;
+
+        this.filters.pipe(take(1)).subscribe(filters => {
+            this.filters.next(filters.map(f => {
+                if (f === existing) {
+                    return replacement;
+                } else {
+                    return f;
+                }
+            }))
         });
     }
 }

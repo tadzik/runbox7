@@ -17,49 +17,133 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { Filter } from '../../rmmapi/rbwebmail';
+import { MessageListService } from '../../rmmapi/messagelist.service';
+import {FormGroup, FormBuilder} from '@angular/forms';
 
 @Component({
     selector: 'app-account-filter-editor',
     template: `
-<div *ngIf="shown" style="display: flex; justify-content: space-between;">
-    <mat-checkbox [checked]="filter.active"> Active </mat-checkbox> 
-    <mat-select [(ngModel)]="filter.location" style="width: auto">
-        <mat-option value="1"> From </mat-option>
-        <mat-option value="0"> To </mat-option>
-        <mat-option value="3"> Cc </mat-option>
-        <mat-option value="4"> Reply-To </mat-option>
-    </mat-select>
-    <mat-form-field>
-        <mat-label>
-            <span *ngIf="filter.negated; else contains"> doesn't contain </span>
-            <ng-template #contains> contains </ng-template>
-        </mat-label>
-        <input matInput type="text" [(ngModel)]="filter.str">
-    </mat-form-field>
-    then
-    <mat-select [(ngModel)]="filter.action" style="width: auto">
-        <mat-option value="t"> move to folder </mat-option>
-        <mat-option value="f"> forward to </mat-option>
-        <mat-option value="b"> redirect to </mat-option>
-    </mat-select>
-    <mat-form-field>
-        <input matInput type="text" [(ngModel)]="filter.target">
-    </mat-form-field>
-</div>
+<mat-card *ngIf="shown" style="margin: 10px;">
+    <mat-card-content>
+        <form [formGroup]="form" style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+            <mat-checkbox formControlName="active"> Active </mat-checkbox> 
+            <mat-form-field>
+                <mat-label> A message where </mat-label>
+                <mat-select formControlName="location" style="width: auto">
+                    <mat-option value="0"> To </mat-option>
+                    <mat-option value="1"> From </mat-option>
+                    <mat-option value="2"> Subject </mat-option>
+                    <mat-option value="3"> Cc </mat-option>
+                    <mat-option value="4"> Reply-To </mat-option>
+                    <mat-option value="5"> Body </mat-option>
+                    <mat-option value="6"> Return-Path </mat-option>
+                    <mat-option value="7"> Delivered-To </mat-option>
+                    <mat-option value="8"> Mailing-List </mat-option>
+                    <mat-option value="9"> Header </mat-option>
+                    <mat-option value="11"> Address-suffix </mat-option>
+                    <mat-option value="13"> List-ID </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <div>
+                <mat-form-field>
+                    <mat-label>
+                        <span *ngIf="isNegated; else contains"> doesn't contain </span>
+                        <ng-template #contains> contains </ng-template>
+                    </mat-label>
+                    <input matInput type="text" formControlName="str">
+                    <button matSuffix mat-icon-button (click)="negate()" matTooltip="Negate">
+                        <mat-icon *ngIf="isNegated; else negateElement" svgIcon="alphabetical"></mat-icon>
+                        <ng-template #negateElement>
+                            <mat-icon svgIcon="alphabetical-off"></mat-icon>
+                        </ng-template>
+                    </button>
+                </mat-form-field>
+            </div>
+            <mat-form-field>
+                <mat-label> Will be </mat-label>
+                <mat-select formControlName="action" style="width: auto">
+                    <mat-option value="t"> moved to folder </mat-option>
+                    <mat-option value="f"> forwarded to </mat-option>
+                    <mat-option value="b"> redirected to </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field *ngIf="form.get('action').value === 't'; else freeform">
+                <mat-label> Select folder </mat-label>
+                <mat-select formControlName="target" style="width: auto">
+                    <mat-option
+                        *ngFor="let folder of folders"
+                        [value]="folder"
+                    > {{ folder }} </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <ng-template #freeform>
+                <mat-form-field>
+                    <mat-label> Target </mat-label>
+                    <input matInput type="text" formControlName="target">
+                </mat-form-field>
+            </ng-template>
+        </form>
+    </mat-card-content>
+    <mat-card-actions style="display: flex">
+        <button mat-raised-button color="primary" *ngIf="form.dirty || !filter.id" (click)="saveFilter()"> Save </button>
+        <button mat-raised-button *ngIf="form.dirty" (click)="reloadForm()"> Discard changes </button>
+        <span style="flex-grow: 1"></span>
+        <button mat-raised-button color="warn" (click)="deleteFilter()"> Delete </button>
+    </mat-card-actions>
+</mat-card>
     `,
 })
 export class FilterEditorComponent implements OnInit {
     @Input() filter: Filter;
 
+    @Output() delete: EventEmitter<void> = new EventEmitter();
+    @Output() save: EventEmitter<Filter> = new EventEmitter();
+
+    isNegated: boolean;
+    folders: string[] = [];
+    form: FormGroup;
     shown: boolean;
 
     constructor(
+        private fb: FormBuilder,
+        messageListService: MessageListService,
     ) {
+        messageListService.folderListSubject.subscribe(folders => {
+            this.folders = folders.map(f => f.folderPath);
+        });
+    }
+
+    negate(): void {
+        this.isNegated = !this.isNegated;
+        this.form.get('negated').setValue(this.isNegated);
     }
 
     ngOnInit() {
+        this.reloadForm();
+    }
+
+    reloadForm(): void {
         this.shown = this.filter.action !== 'pass' && this.filter.action !== 'vacation';
+        this.form = this.fb.group({
+            active:   this.fb.control(this.filter.active),
+            location: this.fb.control(this.filter.location),
+            negated:  this.fb.control(this.filter.negated),
+            str:      this.fb.control(this.filter.str),
+            action:   this.fb.control(this.filter.action),
+            target:   this.fb.control(this.filter.target),
+        });
+        this.isNegated = this.filter.negated;
+    }
+
+    deleteFilter(): void {
+        this.delete.emit();
+    }
+
+    saveFilter(): void {
+        const newFilter = {id: this.filter.id};
+        Object.assign(newFilter, this.form.value);
+        this.save.emit(newFilter as Filter);
     }
 }
