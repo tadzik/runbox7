@@ -807,4 +807,16 @@ export class RunboxWebmailAPI {
             }))
         );
     }
+
+    saveFilter(f: Filter): Observable<number> {
+        return this.http.post('/rest/v1/filter', { filter: f }).pipe(
+            map((res: HttpResponse<any>) => res['result']['id'])
+        );
+    }
+
+    deleteFilter(f: Filter): Observable<void> {
+        return this.http.delete('/rest/v1/filter/' + f.id).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
 }

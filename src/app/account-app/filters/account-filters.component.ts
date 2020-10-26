@@ -39,43 +39,57 @@ export class AccountFiltersComponent {
     }
 
     newFilter(): void {
-        this.filters.pipe(take(1)).subscribe(filters => {
-            const template = {
-                id: null,
-                str: '',
-                action: 't',
-                active: true,
-                target: 'Inbox',
-                negated: false,
-                location: '0',
-                priority: 99,
-            };
-            this.filters.next([template, ...filters]);
-        });
+        const template = {
+            id: null,
+            str: '',
+            action: 't',
+            active: true,
+            target: 'Inbox',
+            negated: false,
+            location: '0',
+            priority: 99,
+        };
+        this.updateFilters(
+            filters => [template, ...filters]
+        );
     }
 
     deleteFilter(target: Filter): void {
         if (target.id) {
             console.log(`Deleting filter #${target.id}`);
+            this.rmmapi.deleteFilter(target).subscribe(
+                () => console.log(`Filter #${target.id} deleted`),
+            );
         }
-        this.filters.pipe(take(1)).subscribe(filters => {
-            this.filters.next(filters.filter(f => f !== target));
-        });
+        this.updateFilters(
+            filters => filters.filter(f => f !== target)
+        );
     }
 
     saveFilter(existing: Filter, replacement: Filter): void {
         console.log(`Uploading filter to server ${JSON.stringify(replacement)}`);
-        // mocked response:
-        replacement.id = 31337;
+        this.rmmapi.saveFilter(replacement).subscribe(
+            id => {
+                replacement.id = id; // only needed when a new one is created, but no difference to us
+                this.updateFilters(
+                    filters => filters.map(f => {
+                        if (f === existing) {
+                            return replacement;
+                        } else {
+                            return f;
+                        }
+                    })
+                );
+            },
+            err => {
+                console.log("FILTER CREATE ERROR:", err);
+            },
+        );
+    }
 
-        this.filters.pipe(take(1)).subscribe(filters => {
-            this.filters.next(filters.map(f => {
-                if (f === existing) {
-                    return replacement;
-                } else {
-                    return f;
-                }
-            }))
-        });
+    updateFilters(transform: (_: Filter[]) => Filter[]): void {
+        this.filters.pipe(take(1)).subscribe(
+            filters => this.filters.next(transform(filters))
+        );
     }
 }
