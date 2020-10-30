@@ -26,6 +26,7 @@ import {take} from 'rxjs/operators';
 @Component({
     selector: 'app-account-filters-component',
     templateUrl: './account-filters.component.html',
+    styleUrls: ['./account-filters.component.scss'],
 })
 export class AccountFiltersComponent {
     filters: ReplaySubject<Filter[]> = new ReplaySubject(1);
@@ -91,5 +92,40 @@ export class AccountFiltersComponent {
         this.filters.pipe(take(1)).subscribe(
             filters => this.filters.next(transform(filters))
         );
+    }
+
+    moveFilterUp(filter: Filter): void {
+        this.updateFilters(filters => {
+            const index = filters.findIndex(f => f === filter);
+            if (index === 0) {
+                return filters;
+            }
+            const head = filters.slice(0, index);
+            let tail = filters.slice(index + 1);
+            tail = [head.pop(), ...tail];
+            setTimeout(() => this.hilightFilter(filter), 50);
+            return [...head, filter, ...tail];
+        });
+    }
+
+    moveFilterDown(filter: Filter): void {
+        this.updateFilters(filters => {
+            const index = filters.findIndex(f => f === filter);
+            if (index === filters.length - 1) {
+                return filters;
+            }
+            const head = filters.slice(0, index);
+            const tail = filters.slice(index + 1);
+            setTimeout(() => this.hilightFilter(filter), 50);
+            return [...head, tail.shift(), filter, ...tail];
+        });
+    }
+
+    hilightFilter(filter: Filter): void {
+        const elem = document.getElementById(`${filter.id}`);
+        if (elem) {
+            elem.scrollIntoView({ behavior: 'smooth' });
+            elem.classList.add('backlitCard');
+        }
     }
 }

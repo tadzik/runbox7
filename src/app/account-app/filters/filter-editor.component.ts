@@ -25,10 +25,18 @@ import {FormGroup, FormBuilder} from '@angular/forms';
 @Component({
     selector: 'app-account-filter-editor',
     template: `
-<mat-card *ngIf="shown" style="margin: 10px;">
+<mat-card style="margin: 10px;">
     <mat-card-content>
         <form [formGroup]="form" style="display: flex; justify-content: space-between; flex-wrap: wrap;">
-            <mat-checkbox formControlName="active"> Active </mat-checkbox> 
+            <div style="display: flex; flex-direction: column;">
+                <mat-checkbox formControlName="active"> Active </mat-checkbox> 
+                <button mat-button (click)="moveUp.emit()">
+                    <mat-icon svgIcon="priority-high"></mat-icon> Move up
+                </button>
+                <button mat-button (click)="moveDown.emit()">
+                    <mat-icon svgIcon="priority-low"></mat-icon> Move down
+                </button>
+            </div>
             <mat-form-field>
                 <mat-label> A message where </mat-label>
                 <mat-select formControlName="location" style="width: auto">
@@ -98,13 +106,14 @@ import {FormGroup, FormBuilder} from '@angular/forms';
 export class FilterEditorComponent implements OnInit {
     @Input() filter: Filter;
 
-    @Output() delete: EventEmitter<void> = new EventEmitter();
-    @Output() save: EventEmitter<Filter> = new EventEmitter();
+    @Output() delete:   EventEmitter<void>   = new EventEmitter();
+    @Output() save:     EventEmitter<Filter> = new EventEmitter();
+    @Output() moveUp:   EventEmitter<void>   = new EventEmitter();
+    @Output() moveDown: EventEmitter<void>   = new EventEmitter();
 
     isNegated: boolean;
     folders: string[] = [];
     form: FormGroup;
-    shown: boolean;
 
     constructor(
         private fb: FormBuilder,
@@ -118,6 +127,7 @@ export class FilterEditorComponent implements OnInit {
     negate(): void {
         this.isNegated = !this.isNegated;
         this.form.get('negated').setValue(this.isNegated);
+        this.form.get('negated').markAsDirty();
     }
 
     ngOnInit() {
@@ -125,7 +135,6 @@ export class FilterEditorComponent implements OnInit {
     }
 
     reloadForm(): void {
-        this.shown = this.filter.action !== 'pass' && this.filter.action !== 'vacation';
         this.form = this.fb.group({
             active:   this.fb.control(this.filter.active),
             location: this.fb.control(this.filter.location),

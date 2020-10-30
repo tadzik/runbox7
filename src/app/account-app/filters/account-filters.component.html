@@ -8,10 +8,14 @@
     </div>
 
     <app-account-filter-editor
+        class="backlitCard"
+        [attr.id]="filter.id"
         *ngFor="let filter of filters"
         [filter]="filter"
         (save)="saveFilter(filter, $event)"
         (delete)="deleteFilter(filter)"
+        (moveUp)="moveFilterUp(filter)"
+        (moveDown)="moveFilterDown(filter)"
     ></app-account-filter-editor>
 </div>
 
