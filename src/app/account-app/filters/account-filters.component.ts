@@ -123,10 +123,6 @@ export class AccountFiltersComponent {
     }
 
     hilightFilter(filter: Filter): void {
-        const elem = document.getElementById(`${filter.id}`);
-        if (elem) {
-            elem.scrollIntoView({ behavior: 'smooth' });
-        }
         this.filterComponents.find(fc => fc.filter === filter).hilight();
     }
 }

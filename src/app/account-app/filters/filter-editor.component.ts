@@ -83,6 +83,7 @@ export class FilterEditorComponent implements OnInit {
 
     hilight(): void {
         this.renderer.addClass(this.cardComponent.nativeElement, 'hilight');
-        setTimeout(() => this.renderer.removeClass(this.cardComponent.nativeElement, 'hilight'), 150);
+        this.cardComponent.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        setTimeout(() => this.renderer.removeClass(this.cardComponent.nativeElement, 'hilight'), 250);
     }
 }

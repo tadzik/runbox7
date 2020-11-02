@@ -1,9 +1,14 @@
 <style>
 .hilight {
-    scale: 1.2;
+    animation: pop 0.2s linear 1;
+}
+@keyframes pop {
+    50% {
+        transform: scale(1.1);
+    }
 }
 </style>
-<mat-card style="margin: 10px; transition: scale 150ms;" #cardComponent>
+<mat-card style="margin: 10px" #cardComponent>
     <mat-card-content>
         <form [formGroup]="form" style="display: flex; justify-content: space-between; flex-wrap: wrap;">
             <div style="display: flex; flex-direction: column;">
