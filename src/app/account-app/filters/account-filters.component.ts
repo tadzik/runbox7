@@ -17,18 +17,19 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
+import { Component, QueryList, ViewChildren } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 
 import { Filter, RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
-import {take} from 'rxjs/operators';
+import { take } from 'rxjs/operators';
+import { FilterEditorComponent } from './filter-editor.component';
 
 @Component({
     selector: 'app-account-filters-component',
     templateUrl: './account-filters.component.html',
-    styleUrls: ['./account-filters.component.scss'],
 })
 export class AccountFiltersComponent {
+    @ViewChildren(FilterEditorComponent) filterComponents: QueryList<FilterEditorComponent>;
     filters: ReplaySubject<Filter[]> = new ReplaySubject(1);
 
     constructor(
@@ -125,7 +126,7 @@ export class AccountFiltersComponent {
         const elem = document.getElementById(`${filter.id}`);
         if (elem) {
             elem.scrollIntoView({ behavior: 'smooth' });
-            elem.classList.add('backlitCard');
         }
+        this.filterComponents.find(fc => fc.filter === filter).hilight();
     }
 }

@@ -17,93 +17,17 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { Filter } from '../../rmmapi/rbwebmail';
 import { MessageListService } from '../../rmmapi/messagelist.service';
-import {FormGroup, FormBuilder} from '@angular/forms';
+import { FormGroup, FormBuilder } from '@angular/forms';
 
 @Component({
     selector: 'app-account-filter-editor',
-    template: `
-<mat-card style="margin: 10px;">
-    <mat-card-content>
-        <form [formGroup]="form" style="display: flex; justify-content: space-between; flex-wrap: wrap;">
-            <div style="display: flex; flex-direction: column;">
-                <mat-checkbox formControlName="active"> Active </mat-checkbox> 
-                <button mat-button (click)="moveUp.emit()">
-                    <mat-icon svgIcon="priority-high"></mat-icon> Move up
-                </button>
-                <button mat-button (click)="moveDown.emit()">
-                    <mat-icon svgIcon="priority-low"></mat-icon> Move down
-                </button>
-            </div>
-            <mat-form-field>
-                <mat-label> A message where </mat-label>
-                <mat-select formControlName="location" style="width: auto">
-                    <mat-option value="0"> To </mat-option>
-                    <mat-option value="1"> From </mat-option>
-                    <mat-option value="2"> Subject </mat-option>
-                    <mat-option value="3"> Cc </mat-option>
-                    <mat-option value="4"> Reply-To </mat-option>
-                    <mat-option value="5"> Body </mat-option>
-                    <mat-option value="6"> Return-Path </mat-option>
-                    <mat-option value="7"> Delivered-To </mat-option>
-                    <mat-option value="8"> Mailing-List </mat-option>
-                    <mat-option value="9"> Header </mat-option>
-                    <mat-option value="11"> Address-suffix </mat-option>
-                    <mat-option value="13"> List-ID </mat-option>
-                </mat-select>
-            </mat-form-field>
-            <div>
-                <mat-form-field>
-                    <mat-label>
-                        <span *ngIf="isNegated; else contains"> doesn't contain </span>
-                        <ng-template #contains> contains </ng-template>
-                    </mat-label>
-                    <input matInput type="text" formControlName="str">
-                    <button matSuffix mat-icon-button (click)="negate()" matTooltip="Negate">
-                        <mat-icon *ngIf="isNegated; else negateElement" svgIcon="alphabetical"></mat-icon>
-                        <ng-template #negateElement>
-                            <mat-icon svgIcon="alphabetical-off"></mat-icon>
-                        </ng-template>
-                    </button>
-                </mat-form-field>
-            </div>
-            <mat-form-field>
-                <mat-label> Will be </mat-label>
-                <mat-select formControlName="action" style="width: auto">
-                    <mat-option value="t"> moved to folder </mat-option>
-                    <mat-option value="f"> forwarded to </mat-option>
-                    <mat-option value="b"> redirected to </mat-option>
-                </mat-select>
-            </mat-form-field>
-            <mat-form-field *ngIf="form.get('action').value === 't'; else freeform">
-                <mat-label> Select folder </mat-label>
-                <mat-select formControlName="target" style="width: auto">
-                    <mat-option
-                        *ngFor="let folder of folders"
-                        [value]="folder"
-                    > {{ folder }} </mat-option>
-                </mat-select>
-            </mat-form-field>
-            <ng-template #freeform>
-                <mat-form-field>
-                    <mat-label> Target </mat-label>
-                    <input matInput type="text" formControlName="target">
-                </mat-form-field>
-            </ng-template>
-        </form>
-    </mat-card-content>
-    <mat-card-actions style="display: flex">
-        <button mat-raised-button color="primary" *ngIf="form.dirty || !filter.id" (click)="saveFilter()"> Save </button>
-        <button mat-raised-button *ngIf="form.dirty" (click)="reloadForm()"> Discard changes </button>
-        <span style="flex-grow: 1"></span>
-        <button mat-raised-button color="warn" (click)="deleteFilter()"> Delete </button>
-    </mat-card-actions>
-</mat-card>
-    `,
+    templateUrl: './filter-editor.component.html',
 })
 export class FilterEditorComponent implements OnInit {
+    @ViewChild('cardComponent', { read: ElementRef }) cardComponent: ElementRef;
     @Input() filter: Filter;
 
     @Output() delete:   EventEmitter<void>   = new EventEmitter();
@@ -117,6 +41,7 @@ export class FilterEditorComponent implements OnInit {
 
     constructor(
         private fb: FormBuilder,
+        private renderer: Renderer2,
         messageListService: MessageListService,
     ) {
         messageListService.folderListSubject.subscribe(folders => {
@@ -154,5 +79,10 @@ export class FilterEditorComponent implements OnInit {
         const newFilter = {id: this.filter.id};
         Object.assign(newFilter, this.form.value);
         this.save.emit(newFilter as Filter);
+    }
+
+    hilight(): void {
+        this.renderer.addClass(this.cardComponent.nativeElement, 'hilight');
+        setTimeout(() => this.renderer.removeClass(this.cardComponent.nativeElement, 'hilight'), 150);
     }
 }
