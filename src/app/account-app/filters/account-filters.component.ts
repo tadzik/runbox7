@@ -18,10 +18,10 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, QueryList, ViewChildren } from '@angular/core';
-import { ReplaySubject } from 'rxjs';
+import { ReplaySubject, Subject } from 'rxjs';
 
 import { Filter, RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
-import { take } from 'rxjs/operators';
+import { take, debounceTime } from 'rxjs/operators';
 import { FilterEditorComponent } from './filter-editor.component';
 
 @Component({
@@ -31,12 +31,22 @@ import { FilterEditorComponent } from './filter-editor.component';
 export class AccountFiltersComponent {
     @ViewChildren(FilterEditorComponent) filterComponents: QueryList<FilterEditorComponent>;
     filters: ReplaySubject<Filter[]> = new ReplaySubject(1);
+    filtersReordered: Subject<void> = new Subject();
 
     constructor(
         private rmmapi: RunboxWebmailAPI,
     ) {
         this.rmmapi.getFilters().subscribe(filters => {
             this.filters.next(filters);
+        });
+
+        this.filtersReordered.pipe(debounceTime(1500)).subscribe(() => {
+            this.filters.pipe(take(1)).subscribe(filters => {
+                const order = filters.map(f => f.id);
+                this.rmmapi.reorderFilters(order).subscribe(() => {
+                    console.log('Filters reordered');
+                });
+            })
         });
     }
 
@@ -49,7 +59,7 @@ export class AccountFiltersComponent {
             target: 'Inbox',
             negated: false,
             location: '0',
-            priority: 99,
+            priority: -1,
         };
         this.updateFilters(
             filters => [template, ...filters]
@@ -107,6 +117,7 @@ export class AccountFiltersComponent {
             setTimeout(() => this.hilightFilter(filter), 50);
             return [...head, filter, ...tail];
         });
+        this.filtersReordered.next();
     }
 
     moveFilterDown(filter: Filter): void {
@@ -120,6 +131,7 @@ export class AccountFiltersComponent {
             setTimeout(() => this.hilightFilter(filter), 50);
             return [...head, tail.shift(), filter, ...tail];
         });
+        this.filtersReordered.next();
     }
 
     hilightFilter(filter: Filter): void {

@@ -819,4 +819,10 @@ export class RunboxWebmailAPI {
             map((res: HttpResponse<any>) => res['result'])
         );
     }
+
+    reorderFilters(ids: number[]): Observable<void> {
+        return this.http.post('/rest/v1/filter/reorder', { order: ids }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
 }
