@@ -145,11 +145,12 @@ describe('SearchService', () => {
         const sincechangeddate = new Date(searchService.indexLastUpdateTime - new Date().getTimezoneOffset() * 60 * 1000);
         const datestring = sincechangeddate.toJSON().replace('T', ' ').substr(0, 'yyyy-MM-dd HH:mm:ss'.length);
 
+        await new Promise(resolve => setTimeout(resolve, 100));
         req = httpMock.expectOne(`/rest/v1/list/deleted_messages/${datestring}`);
         req.flush({
             message_ids: []
         });
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         console.log('Test messagesById');
         console.log(messageListService.messagesById[testMessageId]);
